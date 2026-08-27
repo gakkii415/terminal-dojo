@@ -4,6 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="ゼロからコマンドラインを学べる、安全なブラウザ内トレーニングアプリ。">
+  <meta name="theme-color" content="#0f151b">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:title" content="Terminal Dojo — はじめてのコマンドライン">
+  <meta property="og:description" content="実環境を壊す心配なく、基本コマンドを自分で入力して学べる無料のブラウザ教材。">
+  <meta property="og:url" content="https://gakkii415.github.io/terminal-dojo/">
+  <meta name="twitter:card" content="summary">
+  <link rel="canonical" href="https://gakkii415.github.io/terminal-dojo/">
   <title>Terminal Dojo — はじめてのコマンドライン</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -122,7 +130,7 @@
       font-weight: 600;
     }
 
-    .progress-copy span { color: var(--signal); }
+    .progress-copy #progressCount { color: var(--signal); }
 
     .progress-track {
       width: min(360px, 46vw);
@@ -422,6 +430,27 @@
     .trace-value.ok { color: #70cba8; }
     .trace-value.ng { color: #f08d8d; }
 
+    .trace-details { margin-top: 12px; }
+
+    .trace-details summary {
+      width: fit-content;
+      color: var(--terminal-muted);
+      cursor: pointer;
+      font: 500 11px/1.4 var(--mono);
+    }
+
+    .trace-details .trace { margin-top: 8px; }
+
+    .run-record:last-child .trace-cell { animation: trace-in 180ms ease both; }
+    .run-record:last-child .trace-cell:nth-child(2) { animation-delay: 45ms; }
+    .run-record:last-child .trace-cell:nth-child(3) { animation-delay: 90ms; }
+    .run-record:last-child .trace-cell:nth-child(4) { animation-delay: 135ms; }
+
+    @keyframes trace-in {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .explanation {
       margin-top: 12px;
       padding: 10px 12px;
@@ -509,6 +538,8 @@
     .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
     .dialog-actions button { padding: 0 16px; }
     .danger-action { border-color: var(--danger); background: var(--danger); color: #fff; font-weight: 700; }
+    .sheet-actions { display: grid; gap: 8px; margin-top: 18px; }
+    .mobile-progress-action { display: none; }
 
     .completion {
       display: none;
@@ -519,15 +550,20 @@
     .completion.show { display: block; }
     .completion h2 { margin-bottom: 9px; font-size: 24px; letter-spacing: -.04em; }
     .completion p { color: var(--muted); font-size: 14px; }
+    .completion-list { margin: 14px 0 18px; padding: 0; list-style: none; }
+    .completion-list li { padding: 8px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    .completion-list li:last-child { border-bottom: 1px solid var(--line); }
 
     @media (max-width: 820px) {
       body { overflow: auto; }
       .app { grid-template-rows: 58px minmax(0, 1fr); min-height: 100dvh; }
       .topbar { grid-template-columns: 1fr auto; }
       .brand { padding: 0 16px; border-right: 0; }
-      .brand small, .progress-copy, .top-action { display: none; }
-      .progress-wrap { justify-content: flex-end; padding: 0 16px; }
-      .progress-track { width: 112px; }
+      .brand small, .top-action { display: none; }
+      .progress-wrap { justify-content: flex-end; gap: 8px; padding: 0 16px; }
+      .progress-copy { min-width: auto; font-size: 10px; white-space: nowrap; }
+      .progress-word { display: none; }
+      .progress-track { width: 76px; }
       .workspace { display: grid; grid-template: auto minmax(0, 1fr) / 1fr; min-height: 0; }
       .lesson-panel { overflow: visible; border-right: 0; border-bottom: 1px solid var(--line); }
       .lesson-inner { padding: 14px 16px 13px; }
@@ -540,9 +576,12 @@
       .action-row { margin-top: 12px; }
       .secondary-action { display: none; }
       .dialog-actions .secondary-action { display: block; }
+      .sheet-actions .secondary-action { display: block; width: 100%; }
+      .mobile-progress-action { display: block; }
       .primary-action { width: 100%; }
       .completion { padding: 12px 0 0; }
       .completion h2 { font-size: 19px; }
+      .completion .secondary-action { display: block; width: 100%; margin-top: 14px; }
       .terminal-panel { grid-template-rows: 42px minmax(0, 1fr) auto; min-height: 0; }
       .terminal-toolbar { padding: 0 16px; font-size: 10px; }
       .sandbox-label { display: none; }
@@ -567,7 +606,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-delay: 0ms !important; }
     }
   </style>
 </head>
@@ -576,10 +615,10 @@
     <header class="topbar">
       <div class="brand"><span class="brand-mark">T_</span><span>Terminal Dojo<small>command line basics</small></span></div>
       <div class="progress-wrap" aria-label="学習進捗">
-        <div class="progress-copy"><span id="progressCount">0</span> / 10 challenges</div>
-        <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-copy"><span id="progressCount">0</span> / 10<span class="progress-word"> challenges</span></div>
+        <div class="progress-track" id="progressTrack" role="progressbar" aria-label="完了したチャレンジ" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><div class="progress-bar" id="progressBar"></div></div>
       </div>
-      <button class="top-action" id="openLessons" type="button">レッスン一覧</button>
+      <button class="top-action" id="openLessons" type="button">進捗を見る</button>
     </header>
 
     <main class="workspace">
@@ -609,6 +648,12 @@
             <p class="eyebrow">Course complete</p>
             <h2>最初の一歩、完了。</h2>
             <p>場所を調べ、移動し、フォルダとファイルを作り、中身を読むところまで自分の手で進めました。</p>
+            <ul class="completion-list">
+              <li><code>pwd / ls / cd</code> — 場所を確かめて移動する</li>
+              <li><code>mkdir / touch</code> — フォルダとファイルを作る</li>
+              <li><code>cat</code> — ファイルの中身を読む</li>
+            </ul>
+            <p>ターミナルはそのまま自由に試せます。迷ったら <code>help</code> で使えるコマンドを確認できます。</p>
             <button class="secondary-action" id="restartCourse" type="button">最初からもう一度</button>
           </div>
 
@@ -662,7 +707,10 @@
       <section class="detail-section"><h2>この操作で起きること</h2><p id="sheetConceptText"></p></section>
       <section class="detail-section"><h2>ヒント</h2><ul class="hint-list" id="sheetHintList"></ul><button class="hint-action" data-action="reveal-hint" type="button">ヒントを1つ見る</button><button class="seed-action" data-action="seed-command" type="button">入力欄にセット</button></section>
       <section class="detail-section"><h2>ことば</h2><ul id="sheetGlossaryList"></ul></section>
-      <button class="secondary-action" id="sheetResetChallenge" type="button">このレッスンを最初から</button>
+      <div class="sheet-actions">
+        <button class="secondary-action" id="sheetResetChallenge" type="button">このレッスンを最初から</button>
+        <button class="secondary-action mobile-progress-action" id="mobileOpenLessons" type="button">進捗・全体リセット</button>
+      </div>
     </div>
   </dialog>
 
@@ -675,7 +723,7 @@
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "terminal-dojo:v1";
+      const STORAGE_KEY = "terminal-dojo:v2";
       const HOME = "/home/learner";
       const TOTAL_CHALLENGES = 10;
 
@@ -709,12 +757,12 @@
         },
         {
           title: "中にあるものを見る",
-          objective: "場所が分かったら、その中身を一覧で確認します。移動しなくても別の場所を指定できます。",
-          concept: "ls は指定した場所の中身を一覧表示します。何も続けなければ現在地、後ろにパスを付ければその場所を見ます。",
-          glossary: ["list — 一覧にすること。ls の名前の由来", "argument — コマンドの後ろに渡す追加情報"],
+          objective: "場所が分かったら、その中身を一覧で確認します。現在地の記号と、先頭から場所を示す絶対パスも試します。",
+          concept: "ls は指定した場所の中身を一覧表示します。. は現在地、/ から始まる文字列は場所を先頭から示す絶対パスです。",
+          glossary: [". — 現在いるディレクトリ", "absolute path — / から始めて場所をすべて示す住所"],
           tasks: [
-            { id: "ls-home", text: "現在いる場所の中身を一覧表示してください。", hints: ["list の短縮形を使います。", "引数は必要ありません。", "ls と入力します。"], seed: "ls" },
-            { id: "ls-projects", text: "移動せずに projects フォルダの中身を見てください。", hints: ["ls の後ろに、見たい場所を続けます。", "相対パスならフォルダ名だけで指定できます。", "ls projects と入力します。"], seed: "ls projects" }
+            { id: "ls-home", text: "ls . を使って、現在いる場所の中身を一覧表示してください。", hints: [". は現在いる場所を表します。", "ls の後ろに半角スペースと . を続けます。", "ls . と入力します。"], seed: "ls ." },
+            { id: "ls-projects", text: "絶対パス /home/learner/projects を使い、移動せずに中身を見てください。", hints: ["絶対パスは / から始まります。", "ls の後ろに、表示したい場所の住所をすべて続けます。", "ls /home/learner/projects と入力します。"], seed: "ls /home/learner/projects" }
           ]
         },
         {
@@ -752,7 +800,7 @@
       const clone = value => JSON.parse(JSON.stringify(value));
       const defaultState = () => {
         const fs = createInitialFs();
-        return { version: 1, cwd: HOME, fs, lessonIndex: 0, taskIndex: 0, completed: [], solvedCurrent: false, finished: false, checkpoint: { cwd: HOME, fs: clone(fs) } };
+        return { version: 2, cwd: HOME, fs, lessonIndex: 0, taskIndex: 0, completed: [], solvedCurrent: false, finished: false, checkpoint: { cwd: HOME, fs: clone(fs) } };
       };
 
       let state = loadState();
@@ -768,7 +816,7 @@
       function loadState() {
         try {
           const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-          if (!saved || saved.version !== 1 || !saved.fs || !saved.checkpoint) return defaultState();
+          if (!saved || saved.version !== 2 || !saved.fs || !saved.checkpoint) return defaultState();
           return saved;
         } catch (_) {
           return defaultState();
@@ -792,7 +840,7 @@
       }
 
       function formatTask(text) {
-        const commandTerms = /(\.\.\/guide\.txt|complete\.txt|notes\.txt|guide\.txt|projects|practice|workshop|learner|dojo|\.\.)/g;
+        const commandTerms = /(ls \.|\/home\/learner\/projects|\.\.\/guide\.txt|complete\.txt|notes\.txt|guide\.txt|projects|practice|workshop|learner|dojo|\.\.)/g;
         return escapeHtml(text).replace(commandTerms, "<code>$1</code>");
       }
 
@@ -829,6 +877,7 @@
         const done = state.completed.length;
         $("#progressCount").textContent = done;
         $("#progressBar").style.width = `${Math.min(100, done / TOTAL_CHALLENGES * 100)}%`;
+        $("#progressTrack").setAttribute("aria-valuenow", String(done));
         $("#pathLabel").textContent = shortPath(state.cwd);
         $("#promptLabel").textContent = `learner:${shortPath(state.cwd)}$`;
 
@@ -886,15 +935,17 @@
         $("#history").innerHTML = history.map(item => {
           const outputClass = item.ok ? "" : " error";
           const explanation = item.explanation ? `<div class="explanation"><strong>起きたこと：</strong> ${escapeHtml(item.explanation.what)}<br><strong>確認：</strong> ${escapeHtml(item.explanation.check)}<br><strong>次に試す：</strong> ${escapeHtml(item.explanation.next)}</div>` : "";
-          return `<article class="run-record">
-            <div class="command-line"><span class="prompt-token">learner:${escapeHtml(shortPath(item.cwd))}$</span> ${escapeHtml(item.raw)}</div>
-            <pre class="command-output${outputClass}${item.output ? "" : " muted"}">${escapeHtml(item.output || "（表示なし）")}</pre>
-            <div class="trace" aria-label="コマンドの処理内容">
+          const trace = `<div class="trace" aria-label="コマンドの処理内容">
               <div class="trace-cell"><span class="trace-label">command</span><span class="trace-value">${escapeHtml(item.command || "—")}</span></div>
               <div class="trace-cell"><span class="trace-label">argument</span><span class="trace-value">${escapeHtml(item.argument || "—")}</span></div>
               <div class="trace-cell"><span class="trace-label">resolved path</span><span class="trace-value" title="${escapeHtml(item.resolved || "—")}">${escapeHtml(item.resolved || "—")}</span></div>
               <div class="trace-cell"><span class="trace-label">result</span><span class="trace-value ${item.ok ? "ok" : "ng"}">${item.ok ? "success" : "error"}</span></div>
-            </div>${explanation}
+            </div>`;
+          const traceDisplay = item.lessonIndex >= 2 && item.ok ? `<details class="trace-details"><summary>コマンドの処理を確認</summary>${trace}</details>` : trace;
+          return `<article class="run-record">
+            <div class="command-line"><span class="prompt-token">learner:${escapeHtml(shortPath(item.cwd))}$</span> ${escapeHtml(item.raw)}</div>
+            <pre class="command-output${outputClass}${item.output ? "" : " muted"}">${escapeHtml(item.output || "（表示なし）")}</pre>
+            ${traceDisplay}${explanation}
           </article>`;
         }).join("");
       }
@@ -1034,8 +1085,8 @@
         switch (task.id) {
           case "pwd": return result.command === "pwd" && result.output === HOME;
           case "help": return result.command === "help";
-          case "ls-home": return result.command === "ls" && result.resolved === HOME;
-          case "ls-projects": return result.command === "ls" && result.resolved === `${HOME}/projects`;
+          case "ls-home": return result.command === "ls" && result.argument === "." && result.resolved === HOME;
+          case "ls-projects": return result.command === "ls" && result.argument === `${HOME}/projects` && result.resolved === `${HOME}/projects`;
           case "cd-projects": return result.command === "cd" && state.cwd === `${HOME}/projects`;
           case "cd-parent": return result.command === "cd" && result.argument === ".." && state.cwd === HOME;
           case "mkdir-practice": return result.command === "mkdir" && node(`${HOME}/practice`)?.type === "dir";
@@ -1056,7 +1107,7 @@
         if (!result) return;
 
         if (result.cleared) history = [];
-        else history.push({ ...result, raw: trimmed, cwd: cwdBefore });
+        else history.push({ ...result, raw: trimmed, cwd: cwdBefore, lessonIndex: state.lessonIndex });
 
         if (result.ok && satisfiesTask(currentTask(), result) && !state.solvedCurrent && !state.finished) {
           state.solvedCurrent = true;
@@ -1136,7 +1187,10 @@
       });
 
       $("#commandInput").addEventListener("keydown", event => {
-        if (event.key === "ArrowUp" && commandHistory.length) {
+        if (event.key === "Enter" && !event.isComposing) {
+          event.preventDefault();
+          $("#terminalForm").requestSubmit();
+        } else if (event.key === "ArrowUp" && commandHistory.length) {
           event.preventDefault();
           historyCursor = Math.max(0, historyCursor - 1);
           event.currentTarget.value = commandHistory[historyCursor];
@@ -1160,6 +1214,7 @@
       $("#confirmReset").addEventListener("click", performReset);
       $("#openLessons").addEventListener("click", () => $("#lessonDialog").showModal());
       $("#openDetails").addEventListener("click", () => $("#detailDialog").showModal());
+      $("#mobileOpenLessons").addEventListener("click", () => { $("#detailDialog").close(); $("#lessonDialog").showModal(); });
       $$('[data-close-dialog]').forEach(button => button.addEventListener("click", () => button.closest("dialog").close()));
       $$('[data-action="reveal-hint"]').forEach(button => button.addEventListener("click", revealHint));
       $$('[data-action="seed-command"]').forEach(button => button.addEventListener("click", seedCommand));
