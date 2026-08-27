@@ -272,14 +272,35 @@ Yesの場合、装飾を追加する前に、構成、情報階層、コンテ�
 
 ## Project Direction
 
-- Product / users / primary task:
-- Context of use / target devices:
-- Desired impression:
-- Information density / hierarchy:
+- Product / users / primary task: コマンドライン未経験者向けの対話型学習Webアプリ。最優先タスクは、短い説明を読んだ直後にコマンドを自分で入力し、出力とファイルシステムの変化を理解すること。
+- Context of use / target devices: 自宅や学習環境で1回10〜15分。文字入力がしやすいDesktop / Laptopを主対象とし、Mobileでも全課題を完了できる。外付けキーボードを前提にしない。
+- Desired impression: 「黒い画面に挑む」より「安全な作業台で試す」。静かで精密だが冷たくなく、失敗しても状況を読み解ける実験ノートのようなUIにする。ハッカー風ネオン、ゲーム的な過剰演出、SaaSダッシュボード風の指標カードは使わない。
+- Information density / hierarchy: 標準密度。ターミナルを最大の視覚重量にし、現在の課題を次位、進捗・ヒント・補足を後退させる。画面上の常時表示情報を増やさず、実行後に必要な説明だけを開示する。
 - Reference products / source URLs:
+  - Linux Survival: https://linuxsurvival.com/linux-tutorial-introduction/
+  - Codecademy Learn the Command Line: https://www.codecademy.com/learn/learn-the-command-line
+  - Killercoda Interactive Environments: https://killercoda.com/about
 - Selected reference dimensions / what to borrow:
-- What not to copy / avoid:
+  - Linux Survivalから、インストール不要の擬似ターミナルと、説明の直後に試せる低い開始障壁を参考にする。
+  - Codecademyから、課題と作業領域を隣接させ、入力結果をその場で判定する情報配置を参考にする。
+  - Killercodaから、シナリオ進行中も環境が継続し、前の操作が次の課題へつながる感覚を参考にする。
+- What not to copy / avoid: 各サービスの色・ロゴ・部品外観はコピーしない。Linux Survivalの古いページ送り、Codecademyの学習外ナビゲーションやマーケティング要素、Killercodaの専門家向け高密度操作と実VM基盤は採用しない。
 - Structural direction:
+  - 比較案A「学習作業台」を採用。Desktopは左34%に課題・観察ポイント・ヒント、右66%にターミナルを置く。両者の境界に、実行時だけ「入力 → shellの解釈 → 結果」を示す実行トレースを表示する。
+  - 比較案B「全画面ターミナル＋コーチドロワー」は没。没入感は高いが、初学者が目的と現在地を見失いやすく、説明と出力を往復する負担が大きい。
+  - Mobileは最上部に現在の課題を1〜2行で固定し、ターミナルを主領域にする。詳しい説明とヒントは下部シートで開き、ソフトウェアキーボード表示時も入力行と直近出力を残す。
+  - Desktop wireframe:
+    ```text
+    ┌ progress / lesson title ───────────────────────────┐
+    │ task & hint (34%) │ terminal / history (66%)       │
+    │ why / glossary    │ $ command                      │
+    │                   │ output                         │
+    ├───────────────────┴ input → interpretation → result┤
+    └────────────────────────────────────────────────────┘
+    ```
 - Typography / color / spacing / shape direction:
-- Motion / responsive direction:
-- Durable design decisions:
+  - Display / body: `IBM Plex Sans JP`。Code / prompt / utility: `IBM Plex Mono`。日本語の可読性を優先し、見出しの極端な巨大化はしない。
+  - Core palette: Workbench `#E9EEF2`、Paper `#F8FAFB`、Ink `#1D252C`、Terminal `#111820`、Action `#F15A3A`、Success `#2F8F72`。アクセントは実行・注意・成功にだけ使う。
+  - 4 / 8 / 12 / 20 / 32pxの間隔を基準にし、課題と補足の距離で関係を示す。角丸は4〜6px、境界は1px。階層に不要な影とグラデーションは使わない。
+- Motion / responsive direction: Enter後の実行トレースを約160msで段階表示し、原因と結果の順序を伝える。カーソル以外の常時アニメーションは置かず、`prefers-reduced-motion` では即時表示する。Mobileは単純縦積みではなく、課題要約・ターミナル・下部シートへ再編する。
+- Durable design decisions: 記憶に残す一点は「実行トレース」。装飾ではなく、初心者がshellの働きを理解するために使う。カードを大量に並べず、中心オブジェクトであるターミナルを常に最も強くする。エラーでも入力と環境を消さない。
