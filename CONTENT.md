@@ -39,7 +39,7 @@
 ## Project Content Maturity
 
 - Content value / audience / use context: コマンドラインを一度も触ったことがない日本語話者向け。短い課題を順番に進め、合計30〜45分で基本操作の一巡を目指す。
-- Current maturity / coverage / depth: 初期コア教材を実装済み。全5レッスン・10課題に、目的、実操作、状態判定、概念説明、用語、3段階ヒント、代表的なエラー説明を組み込んだ。
+- Current maturity / coverage / depth: 初期コアと第2周の教材改善を実装済み。全5レッスン・10課題に、目的、実操作、状態判定、概念説明、用語、3段階ヒント、代表的なエラー説明、完了振り返りを組み込んだ。
 - Content types / structure / quality bar:
   - 各課題は「何をしたいか → まず自分で入力 → 結果を観察 → なぜそうなったか」の順で構成する。
   - 1課題1概念を基本とし、用語は平易な日本語で説明する。コマンド名、パス、出力は等幅表示にする。
@@ -47,14 +47,14 @@
   - 実在しない効果や統計は置かず、シミュレーターが実OSへ接続しないことを常に明示する。
 - Implemented core content:
   - Lesson 1「いまいる場所を知る」: `pwd` で現在地を確認し、`help` で利用可能コマンドを見る。
-  - Lesson 2「中にあるものを見る」: `ls` で現在地と、移動せず指定した場所の中身を見る。
+  - Lesson 2「中にあるものを見る」: `ls .` で現在地を明示し、`ls /home/learner/projects` で絶対パスを実際に使う。
   - Lesson 3「場所を移動する」: `cd`、`..`、相対パスで移動する。
   - Lesson 4「場所とファイルを作る」: `mkdir`、`touch` を順に使い、指定した場所へ生成する。
   - Lesson 5「中身を読み、仕上げる」: `cat` と複数コマンドを組み合わせ、最終ミッションを完了する。
 - Error explanation pattern: shell風の短いエラーに続けて、「起きたこと」「確認」「次に試す」を責めない日本語で示す。
 - Hint pattern: 概念の観察ポイント → 使うコマンドや引数 → 具体的な入力例。3段階目でも自動実行はせず、利用者がEnterを押す。
 - Next target state: 初心者の実利用で、用語・課題文・ヒントを開くタイミング・最終ミッションの難易度を観察し、必要な本文修正と次の教材範囲を決める。
-- Expansion Set: 未設定。削除・コピー・検索・リダイレクトなどは、基礎5レッスンのつまずきを確認してから採否判断する。
+- Expansion Set: 「学習カバレッジ＋公開品質」を完了。教材上の習得対象だった `.` と絶対パスを実課題へ接続し、コース完了時の具体的なコマンド振り返りを追加した。次のSetは実利用の観察後に決める。
 - Deferred or rejected areas / reasons: コマンド網羅表、長文Linux史、資格対策、Windows固有コマンド、シェルスクリプトは中心体験を薄めるため初回対象外。
 - Sources / freshness / maintenance:
   - GNU Coreutils manual: https://www.gnu.org/software/coreutils/manual/coreutils.html
