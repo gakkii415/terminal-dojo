@@ -38,12 +38,25 @@
 
 ## Project Content Maturity
 
-- Content value / audience / use context:
+- Content value / audience / use context: コマンドラインを一度も触ったことがない日本語話者向け。1回10〜15分の短い学習を重ね、合計30〜45分で基本操作の一巡を目指す。
 - Content types / structure / quality bar:
-- Current maturity / coverage / depth:
+  - 各課題は「何をしたいか → まず自分で入力 → 結果を観察 → なぜそうなったか」の順で構成する。
+  - 1課題1概念を基本とし、用語は最初の出現時に平易な日本語で説明する。コマンド名、パス、出力は等幅表示にする。
+  - 答えの暗記ではなく、プロンプト、現在地、引数、相対パス、出力の関係を説明できる内容にする。
+  - 実在しない効果や統計は置かず、コマンド挙動は公式マニュアルで確認する。シミュレーター固有の省略は明示する。
+- Current maturity / coverage / depth: 教材設計済み、本文未実装。基礎ファイル操作に限定し、OS設定やシェルスクリプトは扱わない。
 - Core content set / completion criteria:
-- Next target state:
-- Expansion Set:
-- Deferred or rejected areas / reasons:
+  - Lesson 1「はじめの一行」: ターミナル、プロンプト、コマンド、Enter、`pwd`。
+  - Lesson 2「中身を見渡す」: `ls`、ファイルとディレクトリ、表示された名前の読み方。
+  - Lesson 3「フォルダを歩く」: `cd`、`..`、相対パスと絶対パス、`pwd` での確認。
+  - Lesson 4「作業場所を作る」: `mkdir` と `touch`、作成後に `ls` で確かめる習慣。
+  - Lesson 5「情報を取り出す」: `cat`、複数コマンドを組み合わせる最終ミッション。
+  - 全5レッスン、約10課題。各レッスンに導入、実操作、代表的な失敗例、完了時の短い振り返りを含める。
+- Next target state: 初期完成版へ全5レッスンの実用本文と課題を組み込み、説明・入力・出力・判定が一続きになる状態。
+- Expansion Set: コア完成前のため未設定。実際のつまずきを確認してから、削除・コピー・移動・検索・リダイレクト等を採否判断する。
+- Deferred or rejected areas / reasons: コマンド網羅表、長文Linux史、資格対策、Windows固有コマンド、シェルスクリプトは中心体験を薄めるため初回対象外。
 - Sources / freshness / maintenance:
-- Durable content decisions:
+  - GNU Coreutils manual: https://www.gnu.org/software/coreutils/manual/coreutils.html
+  - GNU Bash manual（`cd` 等のshell builtin）: https://www.gnu.org/software/bash/manual/bash.html
+  - 教材更新時は対象コマンドの公式仕様を再確認し、シミュレーターとの差分があれば明示する。
+- Durable content decisions: 日本語本文を正本とする。コピーさせる前に入力を促す。エラー文は「起きたこと」「確認する場所」「次の一手」を短く示し、責める表現を使わない。
