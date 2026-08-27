@@ -730,7 +730,7 @@
 
       const STORAGE_KEY = "terminal-dojo:v2";
       const HOME = "/home/learner";
-      const TOTAL_CHALLENGES = 60;
+      const TOTAL_CHALLENGES = 260;
 
       const createInitialFs = () => ({
         type: "dir", children: {
@@ -858,6 +858,31 @@
       EXTENDED_DRILLS.forEach(([title, text, seed, concept, term], index) => {
         const id = `extended-${String(index + 1).padStart(2, "0")}`;
         LESSONS.push({ title, objective: "短い操作を自分で入力し、結果を見て次の一手へつなげます。", concept, glossary: [term], tasks: [{ id, text, hints: ["課題文にある対象と、いまいる場所を確認します。", `使う入力は ${seed.split(" ")[0]} です。`, `${seed} と入力して Enter を押します。`], seed, expected: seed }] });
+      });
+
+      const PROJECT_LABS = [
+        ["release-notes", "リリースノート"], ["research-log", "調査メモ"], ["design-review", "デザインレビュー"], ["api-check", "API確認"], ["content-plan", "コンテンツ計画"],
+        ["bug-notes", "不具合メモ"], ["meeting-log", "会議記録"], ["deploy-check", "公開確認"], ["test-cases", "テストケース"], ["user-feedback", "利用者フィードバック"],
+        ["data-cleanup", "データ整理"], ["migration-plan", "移行計画"], ["access-review", "アクセス確認"], ["support-notes", "サポート記録"], ["onboarding", "導入案内"],
+        ["roadmap", "ロードマップ"], ["performance-log", "性能記録"], ["incident-note", "障害メモ"], ["handoff", "引き継ぎ"], ["archive-check", "アーカイブ確認"]
+      ];
+
+      PROJECT_LABS.forEach(([folder, label], projectIndex) => {
+        const prefix = `lab-${String(projectIndex + 1).padStart(2, "0")}`;
+        const add = (title, text, seed, concept, term) => {
+          const id = `${prefix}-${String(LESSONS.length + 1).padStart(3, "0")}`;
+          LESSONS.push({ title: `${label}: ${title}`, objective: `${label}の作業場所を、自分で作って確かめます。`, concept, glossary: [term], tasks: [{ id, text, hints: ["いまの作業場所と課題の対象を確認します。", `使うコマンドは ${seed.split(" ")[0]} です。`, `${seed} と入力して Enter を押します。`], seed, expected: seed }] });
+        };
+        add("開始地点をそろえる", "ホームへ移動してください。", "cd /home/learner", "目的地を絶対パスで指定すると、開始地点をそろえられます。", "absolute path — / から始まる場所の指定");
+        add("作業場所を作る", `${folder} フォルダを作ってください。`, `mkdir ${folder}`, "作業ごとにフォルダを作ると、ファイルの役割が分かれます。", "mkdir — フォルダを作成する");
+        add("作業場所へ入る", `${folder} フォルダへ移動してください。`, `cd ${folder}`, "作業先へ移ってからファイルを作ると、指定が短くなります。", "cd — 作業場所を変更する");
+        add("記録を用意する", "brief.txt という空のファイルを作ってください。", "touch brief.txt", "空のファイルは、これから内容を置くための入れ物になります。", "touch — 空のファイルを作成する");
+        add("中身を確認する", "現在地の中身を . を使って表示してください。", "ls .", "作った直後に一覧を見ると、対象の場所を取り違えません。", ". — 現在いるディレクトリ");
+        add("記録を読む", "brief.txt の中身を表示してください。", "cat brief.txt", "空のファイルも表示して、対象を正しく指定できたか確かめます。", "cat — ファイル内容を表示する");
+        add("親へ戻る", "1つ上のホームへ戻ってください。", "cd ..", "親フォルダへ戻る操作は、作業を切り替えるときに使います。", ".. — 1つ上のディレクトリ");
+        add("外から確認する", `${folder} の中身を表示してください。`, `ls ${folder}`, "中へ移動しなくても、相対パスで中身を確認できます。", "relative path — 現在地を基準にした指定");
+        add("もう一度入る", `${folder} フォルダへ移動してください。`, `cd ${folder}`, "同じ場所へ戻る操作を繰り返すことで、パスの読み方が定着します。", "current directory — いま作業している場所");
+        add("完了場所を確認する", "現在いる場所を表示してください。", "pwd", "作業を終える前に現在地を確認する習慣をつけます。", "pwd — 現在地を表示する");
       });
 
       const clone = value => JSON.parse(JSON.stringify(value));
