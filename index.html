@@ -1,0 +1,1171 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ゼロからコマンドラインを学べる、安全なブラウザ内トレーニングアプリ。">
+  <title>Terminal Dojo — はじめてのコマンドライン</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --workbench: #dde4e8;
+      --lesson: #f7f9fa;
+      --paper: #ffffff;
+      --ink: #172027;
+      --muted: #5f6d76;
+      --line: #c5d0d6;
+      --terminal: #0f151b;
+      --terminal-2: #151e26;
+      --terminal-line: #293640;
+      --terminal-text: #e7eef1;
+      --terminal-muted: #9bacb5;
+      --signal: #e4572e;
+      --signal-soft: #fff0ea;
+      --success: #2c8a68;
+      --success-soft: #e8f5ef;
+      --danger: #d56262;
+      --focus: #1e70aa;
+      --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+      --sans: "IBM Plex Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: var(--workbench);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.65;
+    }
+
+    button, input { font: inherit; }
+
+    button {
+      min-height: 44px;
+      border: 1px solid currentColor;
+      border-radius: 2px;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    button:disabled { cursor: not-allowed; opacity: .45; }
+
+    :focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+
+    .app {
+      display: grid;
+      grid-template-rows: 68px minmax(0, 1fr);
+      height: 100dvh;
+      border: 1px solid #aebbc2;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 36% 1fr auto;
+      align-items: stretch;
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 24px;
+      border-right: 1px solid var(--line);
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      background: var(--ink);
+      color: #fff;
+      font: 600 12px/1 var(--mono);
+    }
+
+    .brand small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .12em;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-width: 0;
+      padding: 0 24px;
+    }
+
+    .progress-copy {
+      min-width: 108px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .progress-copy span { color: var(--signal); }
+
+    .progress-track {
+      width: min(360px, 46vw);
+      height: 4px;
+      overflow: hidden;
+      background: var(--workbench);
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      background: var(--signal);
+      transition: width 220ms ease;
+    }
+
+    .top-action {
+      align-self: center;
+      margin-right: 18px;
+      padding: 0 14px;
+      border-color: var(--line);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 36% 64%;
+      min-height: 0;
+    }
+
+    .lesson-panel {
+      min-width: 0;
+      overflow-y: auto;
+      background: var(--lesson);
+      border-right: 1px solid var(--line);
+    }
+
+    .lesson-inner { padding: clamp(26px, 4vh, 52px) clamp(24px, 3.2vw, 52px) 40px; }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--signal);
+      font: 600 11px/1.4 var(--mono);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 12ch;
+      margin-bottom: 18px;
+      font-size: clamp(27px, 3.1vw, 44px);
+      line-height: 1.18;
+      letter-spacing: -.055em;
+    }
+
+    .objective {
+      max-width: 48ch;
+      margin-bottom: 30px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .task-block {
+      padding: 20px 0 22px;
+      border-top: 2px solid var(--ink);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .task-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font: 600 11px/1.4 var(--mono);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .task-text {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.65;
+    }
+
+    code, kbd { font-family: var(--mono); }
+
+    code {
+      padding: .08em .35em;
+      background: #e8edf0;
+      color: var(--ink);
+      font-size: .9em;
+    }
+
+    kbd {
+      padding: 2px 5px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-size: 11px;
+    }
+
+    .status {
+      display: none;
+      margin: 18px 0 0;
+      padding: 13px 15px;
+      border-left: 4px solid var(--line);
+      background: var(--paper);
+      font-size: 13px;
+    }
+
+    .status.show { display: block; }
+    .status.success { border-color: var(--success); background: var(--success-soft); }
+    .status.error { border-color: var(--danger); }
+    .status strong { display: block; margin-bottom: 2px; }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .primary-action {
+      display: none;
+      padding: 0 18px;
+      border-color: var(--ink);
+      background: var(--ink);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .primary-action.show { display: block; }
+
+    .secondary-action {
+      padding: 0 14px;
+      border-color: var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .lesson-details { margin-top: 32px; }
+
+    .detail-section {
+      padding: 22px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .detail-section h2 {
+      margin-bottom: 9px;
+      font-size: 14px;
+      letter-spacing: -.01em;
+    }
+
+    .detail-section p, .detail-section li {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .detail-section ul { margin: 0; padding-left: 1.25em; }
+
+    .hint-list {
+      display: grid;
+      gap: 8px;
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .hint-item {
+      padding: 10px 12px;
+      border-left: 2px solid var(--signal);
+      background: var(--signal-soft);
+      color: var(--ink) !important;
+    }
+
+    .hint-action {
+      width: 100%;
+      margin-top: 12px;
+      border-color: var(--line);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .seed-action {
+      display: none;
+      width: 100%;
+      margin-top: 8px;
+      border-color: var(--signal);
+      color: var(--signal);
+      font: 600 12px/1 var(--mono);
+    }
+
+    .seed-action.show { display: block; }
+
+    .shortcut-note { margin: 28px 0 0; color: var(--muted); font-size: 11px; }
+
+    .mobile-summary, .mobile-detail-button { display: none; }
+
+    .terminal-panel {
+      display: grid;
+      grid-template-rows: 54px minmax(0, 1fr) auto;
+      min-width: 0;
+      min-height: 0;
+      background: var(--terminal);
+      color: var(--terminal-text);
+    }
+
+    .terminal-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 clamp(18px, 2.5vw, 34px);
+      border-bottom: 1px solid var(--terminal-line);
+      color: var(--terminal-muted);
+      font: 500 12px/1 var(--mono);
+    }
+
+    .terminal-toolbar span:first-child::before {
+      content: "";
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-right: 10px;
+      background: var(--success);
+      vertical-align: 1px;
+    }
+
+    .sandbox-label { color: #cfdae0; }
+
+    .terminal-scroll {
+      min-height: 0;
+      overflow-y: auto;
+      padding: 22px clamp(18px, 3vw, 42px) 34px;
+      scroll-behavior: smooth;
+    }
+
+    .terminal-intro {
+      padding-bottom: 18px;
+      color: var(--terminal-muted);
+      font: 13px/1.75 var(--mono);
+    }
+
+    .terminal-intro strong { color: var(--terminal-text); font-weight: 500; }
+
+    .run-record {
+      padding: 18px 0;
+      border-top: 1px solid var(--terminal-line);
+      font: 13px/1.72 var(--mono);
+    }
+
+    .command-line { color: var(--terminal-text); overflow-wrap: anywhere; }
+    .prompt-token { color: #70cba8; }
+    .command-output { margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .command-output.error { color: #f08d8d; }
+    .command-output.muted { color: var(--terminal-muted); }
+
+    .trace {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 14px;
+      border-top: 1px solid var(--terminal-line);
+      border-bottom: 1px solid var(--terminal-line);
+    }
+
+    .trace-cell {
+      min-width: 0;
+      padding: 9px 11px;
+      border-right: 1px solid var(--terminal-line);
+    }
+
+    .trace-cell:last-child { border-right: 0; }
+
+    .trace-label {
+      display: block;
+      margin-bottom: 3px;
+      color: #71858f;
+      font-size: 9px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .trace-value {
+      display: block;
+      overflow: hidden;
+      color: #cbd6db;
+      font-size: 11px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .trace-value.ok { color: #70cba8; }
+    .trace-value.ng { color: #f08d8d; }
+
+    .explanation {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-left: 2px solid var(--danger);
+      background: #191f25;
+      color: #c9d4d9;
+      font: 12px/1.7 var(--sans);
+    }
+
+    .explanation strong { color: #f4f7f8; }
+
+    .terminal-form {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      min-height: 74px;
+      padding: 12px clamp(18px, 3vw, 42px);
+      border-top: 1px solid var(--terminal-line);
+      background: var(--terminal-2);
+    }
+
+    .input-prompt { color: #70cba8; font: 500 13px/1 var(--mono); }
+
+    .command-input {
+      width: 100%;
+      min-height: 44px;
+      border: 0;
+      border-bottom: 1px solid #566772;
+      border-radius: 0;
+      outline: 0;
+      background: transparent;
+      color: #fff;
+      caret-color: var(--signal);
+      font: 15px/1.4 var(--mono);
+    }
+
+    .command-input:focus { border-color: var(--signal); }
+    .command-input::placeholder { color: #64737c; }
+
+    .run-button {
+      padding: 0 16px;
+      border-color: var(--signal);
+      background: var(--signal);
+      color: #fff;
+      font: 600 12px/1 var(--mono);
+    }
+
+    dialog {
+      width: min(560px, calc(100% - 32px));
+      max-height: calc(100dvh - 32px);
+      padding: 0;
+      overflow: auto;
+      border: 1px solid var(--ink);
+      border-radius: 2px;
+      background: var(--lesson);
+      color: var(--ink);
+    }
+
+    dialog::backdrop { background: rgb(15 21 27 / 72%); }
+
+    .dialog-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 62px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .dialog-head h2 { margin: 0; font-size: 16px; }
+    .close-button { width: 44px; border: 0; font-size: 21px; }
+    .dialog-body { padding: 22px 20px 26px; }
+
+    .lesson-list { margin: 0; padding: 0; list-style: none; }
+    .lesson-list li { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .lesson-number { color: var(--muted); font: 500 12px/1 var(--mono); }
+    .lesson-list strong { display: block; font-size: 14px; }
+    .lesson-list small { color: var(--muted); }
+    .lesson-state { color: var(--muted); font-size: 11px; }
+    .lesson-state.current { color: var(--signal); font-weight: 700; }
+
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+    .dialog-actions button { padding: 0 16px; }
+    .danger-action { border-color: var(--danger); background: var(--danger); color: #fff; font-weight: 700; }
+
+    .completion {
+      display: none;
+      padding: 22px 0;
+      border-top: 2px solid var(--success);
+    }
+
+    .completion.show { display: block; }
+    .completion h2 { margin-bottom: 9px; font-size: 24px; letter-spacing: -.04em; }
+    .completion p { color: var(--muted); font-size: 14px; }
+
+    @media (max-width: 820px) {
+      body { overflow: auto; }
+      .app { grid-template-rows: 58px minmax(0, 1fr); min-height: 100dvh; }
+      .topbar { grid-template-columns: 1fr auto; }
+      .brand { padding: 0 16px; border-right: 0; }
+      .brand small, .progress-copy, .top-action { display: none; }
+      .progress-wrap { justify-content: flex-end; padding: 0 16px; }
+      .progress-track { width: 112px; }
+      .workspace { display: grid; grid-template: auto minmax(0, 1fr) / 1fr; min-height: 0; }
+      .lesson-panel { overflow: visible; border-right: 0; border-bottom: 1px solid var(--line); }
+      .lesson-inner { padding: 14px 16px 13px; }
+      .lesson-inner > .eyebrow, .lesson-inner > h1, .lesson-inner > .objective, .lesson-inner > .task-block, .lesson-inner > .lesson-details, .lesson-inner > .shortcut-note { display: none; }
+      .mobile-summary { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+      .mobile-summary .eyebrow { margin-bottom: 4px; }
+      .mobile-summary strong { display: block; font-size: 14px; line-height: 1.4; }
+      .mobile-summary span { display: block; overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+      .mobile-detail-button { display: block; padding: 0 12px; border-color: var(--line); font-size: 12px; font-weight: 600; }
+      .action-row { margin-top: 12px; }
+      .secondary-action { display: none; }
+      .primary-action { width: 100%; }
+      .completion { padding: 12px 0 0; }
+      .completion h2 { font-size: 19px; }
+      .terminal-panel { grid-template-rows: 42px minmax(0, 1fr) auto; min-height: 0; }
+      .terminal-toolbar { padding: 0 16px; font-size: 10px; }
+      .sandbox-label { display: none; }
+      .terminal-scroll { padding: 16px 16px 26px; }
+      .terminal-intro { font-size: 11px; }
+      .run-record { padding: 14px 0; font-size: 12px; }
+      .trace { grid-template-columns: 1fr 1fr; }
+      .trace-cell:nth-child(2) { border-right: 0; }
+      .trace-cell:nth-child(-n+2) { border-bottom: 1px solid var(--terminal-line); }
+      .terminal-form { grid-template-columns: auto minmax(0, 1fr); gap: 9px; min-height: 66px; padding: 10px 14px; }
+      .run-button { grid-column: 1 / -1; display: none; }
+      .command-input { min-height: 42px; font-size: 14px; }
+      dialog#detailDialog { width: 100%; max-width: none; max-height: 82dvh; margin: auto 0 0; border-width: 1px 0 0; }
+    }
+
+    @media (max-height: 680px) and (min-width: 821px) {
+      .lesson-inner { padding-top: 24px; }
+      h1 { font-size: 29px; margin-bottom: 10px; }
+      .objective { margin-bottom: 18px; }
+      .lesson-details { margin-top: 20px; }
+      .detail-section { padding: 14px 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">T_</span><span>Terminal Dojo<small>command line basics</small></span></div>
+      <div class="progress-wrap" aria-label="学習進捗">
+        <div class="progress-copy"><span id="progressCount">0</span> / 10 challenges</div>
+        <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+      </div>
+      <button class="top-action" id="openLessons" type="button">レッスン一覧</button>
+    </header>
+
+    <main class="workspace">
+      <aside class="lesson-panel" aria-label="レッスン">
+        <div class="lesson-inner">
+          <p class="eyebrow" id="lessonNumber">Lesson 01 / 05</p>
+          <h1 id="lessonTitle">いまいる場所を知る</h1>
+          <p class="objective" id="lessonObjective"></p>
+
+          <div class="mobile-summary">
+            <div><p class="eyebrow" id="mobileLessonNumber"></p><strong id="mobileLessonTitle"></strong><span id="mobileTaskText"></span></div>
+            <button class="mobile-detail-button" id="openDetails" type="button">課題・ヒント</button>
+          </div>
+
+          <section class="task-block" aria-labelledby="taskHeading">
+            <div class="task-label"><span id="taskHeading">Current challenge</span><span id="challengeNumber"></span></div>
+            <p class="task-text" id="taskText"></p>
+            <div class="status" id="taskStatus" role="status" aria-live="polite"></div>
+          </section>
+
+          <div class="action-row">
+            <button class="primary-action" id="nextChallenge" type="button">次のチャレンジへ</button>
+            <button class="secondary-action" id="resetChallenge" type="button">この課題をやり直す</button>
+          </div>
+
+          <div class="completion" id="completion">
+            <p class="eyebrow">Course complete</p>
+            <h2>最初の一歩、完了。</h2>
+            <p>場所を調べ、移動し、フォルダとファイルを作り、中身を読むところまで自分の手で進めました。</p>
+            <button class="secondary-action" id="restartCourse" type="button">最初からもう一度</button>
+          </div>
+
+          <div class="lesson-details" id="lessonDetails">
+            <section class="detail-section">
+              <h2>この操作で起きること</h2>
+              <p id="conceptText"></p>
+            </section>
+            <section class="detail-section">
+              <h2>ヒント</h2>
+              <p>詰まったときだけ、1段階ずつ開けます。</p>
+              <ul class="hint-list" id="hintList"></ul>
+              <button class="hint-action" data-action="reveal-hint" type="button">ヒントを1つ見る</button>
+              <button class="seed-action" data-action="seed-command" type="button">入力欄にセット</button>
+            </section>
+            <section class="detail-section">
+              <h2>ことば</h2>
+              <ul id="glossaryList"></ul>
+            </section>
+          </div>
+          <p class="shortcut-note"><kbd>↑</kbd> 直前の入力　<kbd>Ctrl</kbd> + <kbd>L</kbd> 画面をクリア</p>
+        </div>
+      </aside>
+
+      <section class="terminal-panel" aria-label="練習用ターミナル">
+        <div class="terminal-toolbar"><span id="pathLabel">~/</span><span class="sandbox-label">安全な練習環境 — 実際の端末には接続しません</span></div>
+        <div class="terminal-scroll" id="terminalScroll" aria-live="polite">
+          <div class="terminal-intro"><strong>Terminal Dojo sandbox</strong><br>ここでは何度失敗しても大丈夫です。まずは課題のコマンドを入力してください。</div>
+          <div id="history"></div>
+        </div>
+        <form class="terminal-form" id="terminalForm" autocomplete="off">
+          <label class="input-prompt" for="commandInput" id="promptLabel">learner:~$</label>
+          <input class="command-input" id="commandInput" name="command" placeholder="コマンドを入力して Enter" spellcheck="false" autocapitalize="off" autocomplete="off">
+          <button class="run-button" type="submit">RUN ↵</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="lessonDialog">
+    <div class="dialog-head"><h2>5つのレッスン</h2><button class="close-button" data-close-dialog type="button" aria-label="閉じる">×</button></div>
+    <div class="dialog-body"><ol class="lesson-list" id="lessonList"></ol></div>
+  </dialog>
+
+  <dialog id="detailDialog">
+    <div class="dialog-head"><h2>課題とヒント</h2><button class="close-button" data-close-dialog type="button" aria-label="閉じる">×</button></div>
+    <div class="dialog-body">
+      <p class="eyebrow" id="sheetLessonNumber"></p>
+      <h2 id="sheetLessonTitle"></h2>
+      <section class="task-block"><div class="task-label"><span>Current challenge</span><span id="sheetChallengeNumber"></span></div><p class="task-text" id="sheetTaskText"></p></section>
+      <section class="detail-section"><h2>この操作で起きること</h2><p id="sheetConceptText"></p></section>
+      <section class="detail-section"><h2>ヒント</h2><ul class="hint-list" id="sheetHintList"></ul><button class="hint-action" data-action="reveal-hint" type="button">ヒントを1つ見る</button><button class="seed-action" data-action="seed-command" type="button">入力欄にセット</button></section>
+      <section class="detail-section"><h2>ことば</h2><ul id="sheetGlossaryList"></ul></section>
+      <button class="secondary-action" id="sheetResetChallenge" type="button">この課題をやり直す</button>
+    </div>
+  </dialog>
+
+  <dialog id="resetDialog">
+    <div class="dialog-head"><h2 id="resetTitle">この課題をやり直しますか？</h2><button class="close-button" data-close-dialog type="button" aria-label="閉じる">×</button></div>
+    <div class="dialog-body"><p id="resetCopy">この課題を始めた時点の場所とファイルに戻します。</p><div class="dialog-actions"><button data-close-dialog type="button">キャンセル</button><button class="danger-action" id="confirmReset" type="button">やり直す</button></div></div>
+  </dialog>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "terminal-dojo:v1";
+      const HOME = "/home/learner";
+      const TOTAL_CHALLENGES = 10;
+
+      const createInitialFs = () => ({
+        type: "dir", children: {
+          home: { type: "dir", children: {
+            learner: { type: "dir", children: {
+              "welcome.txt": { type: "file", content: "Terminal Dojo へようこそ。失敗しても、いつでもやり直せます。" },
+              projects: { type: "dir", children: {
+                garden: { type: "dir", children: {} },
+                "memo.txt": { type: "file", content: "次に作りたいものを書いておくメモです。" }
+              } },
+              workshop: { type: "dir", children: {
+                "guide.txt": { type: "file", content: "DOJO GUIDE\n1. 場所を確かめる\n2. 小さく試す\n3. 結果を読む" }
+              } }
+            } }
+          } }
+        }
+      });
+
+      const LESSONS = [
+        {
+          title: "いまいる場所を知る",
+          objective: "ターミナルでは、作業中の場所がすべての基準になります。まず現在地を表示し、使えるコマンドも確認します。",
+          concept: "pwd は current working directory（現在の作業場所）を表示します。画面に出たパスは、フォルダを上から順にたどる住所です。",
+          glossary: ["directory — ファイルをまとめる場所。フォルダとほぼ同じ意味", "path — ファイルやフォルダの場所を表す住所"],
+          tasks: [
+            { id: "pwd", text: "現在いる場所を表示してください。", hints: ["「現在地を表示する」コマンドを使います。", "3文字のコマンドです。", "pwd と入力して Enter を押します。"], seed: "pwd" },
+            { id: "help", text: "この練習環境で使えるコマンドを確認してください。", hints: ["困ったときに一覧を見るためのコマンドがあります。", "英語で「助け」を意味する単語です。", "help と入力して Enter を押します。"], seed: "help" }
+          ]
+        },
+        {
+          title: "中にあるものを見る",
+          objective: "場所が分かったら、その中身を一覧で確認します。移動しなくても別の場所を指定できます。",
+          concept: "ls は指定した場所の中身を一覧表示します。何も続けなければ現在地、後ろにパスを付ければその場所を見ます。",
+          glossary: ["list — 一覧にすること。ls の名前の由来", "argument — コマンドの後ろに渡す追加情報"],
+          tasks: [
+            { id: "ls-home", text: "現在いる場所の中身を一覧表示してください。", hints: ["list の短縮形を使います。", "引数は必要ありません。", "ls と入力します。"], seed: "ls" },
+            { id: "ls-projects", text: "移動せずに projects フォルダの中身を見てください。", hints: ["ls の後ろに、見たい場所を続けます。", "相対パスならフォルダ名だけで指定できます。", "ls projects と入力します。"], seed: "ls projects" }
+          ]
+        },
+        {
+          title: "場所を移動する",
+          objective: "cd で作業場所を切り替えます。移動後はプロンプトの表示と pwd の結果が変わります。",
+          concept: "cd は change directory の略です。.. は1つ上の場所を表し、今いる場所を基準にした指定を相対パスと呼びます。",
+          glossary: ["cd — 作業するディレクトリを変更するコマンド", ".. — 現在地から1つ上のディレクトリ"],
+          tasks: [
+            { id: "cd-projects", text: "projects フォルダへ移動してください。", hints: ["change directory の短縮形を使います。", "移動先を引数として渡します。", "cd projects と入力します。"], seed: "cd projects" },
+            { id: "cd-parent", text: "記号 .. を使って、1つ上の learner フォルダへ戻ってください。", hints: ["1つ上は2つの点で表します。", "cd の移動先に .. を指定します。", "cd .. と入力します。"], seed: "cd .." }
+          ]
+        },
+        {
+          title: "場所とファイルを作る",
+          objective: "新しいフォルダを作り、その中に空のファイルを用意します。作った結果は ls で確かめられます。",
+          concept: "mkdir はディレクトリ、touch は空のファイルを作ります。同名のものがある場合は安全のためエラーにします。",
+          glossary: ["mkdir — make directory の短縮形", "touch — ファイルを作成するコマンド"],
+          tasks: [
+            { id: "mkdir-practice", text: "現在地に practice フォルダを作ってください。", hints: ["make directory の短縮形を使います。", "作りたい名前を引数にします。", "mkdir practice と入力します。"], seed: "mkdir practice" },
+            { id: "touch-notes", text: "practice に移動し、notes.txt という空のファイルを作ってください。", hints: ["まず cd で practice へ移動します。", "次に、ファイルを作る touch を使います。", "cd practice の後に touch notes.txt を実行します。"], seed: "cd practice" }
+          ]
+        },
+        {
+          title: "中身を読み、仕上げる",
+          objective: "ファイルの内容を表示する cat を覚え、最後はこれまでのコマンドを組み合わせて小さなミッションを完了します。",
+          concept: "cat はファイルの内容をターミナルに表示します。最後の課題では、現在地と相対パスを意識して複数の操作を組み合わせます。",
+          glossary: ["cat — ファイル内容を連結・表示するコマンド", "../ — 1つ上の場所を基準にする相対パス"],
+          tasks: [
+            { id: "cat-guide", text: "workshop に移動し、guide.txt の中身を表示してください。", hints: ["まずホームから workshop へ移動します。", "ファイルの表示には cat を使います。", "cd workshop の後に cat guide.txt を実行します。"], seed: "cd workshop" },
+            { id: "final", text: "workshop の中に dojo を作って移動し、complete.txt を作成。その場所から ../guide.txt を表示してください。", hints: ["mkdir → cd → touch → cat の順に進めます。", "最後の ../ は、dojo の1つ上を表します。", "mkdir dojo / cd dojo / touch complete.txt / cat ../guide.txt を順に実行します。"], seed: "mkdir dojo" }
+          ]
+        }
+      ];
+
+      const clone = value => JSON.parse(JSON.stringify(value));
+      const defaultState = () => {
+        const fs = createInitialFs();
+        return { version: 1, cwd: HOME, fs, lessonIndex: 0, taskIndex: 0, completed: [], solvedCurrent: false, finished: false, checkpoint: { cwd: HOME, fs: clone(fs) } };
+      };
+
+      let state = loadState();
+      let history = [];
+      let commandHistory = [];
+      let historyCursor = 0;
+      let hintLevels = {};
+      let pendingReset = "challenge";
+
+      const $ = selector => document.querySelector(selector);
+      const $$ = selector => [...document.querySelectorAll(selector)];
+
+      function loadState() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          if (!saved || saved.version !== 1 || !saved.fs || !saved.checkpoint) return defaultState();
+          return saved;
+        } catch (_) {
+          return defaultState();
+        }
+      }
+
+      function saveState() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) { /* The app remains usable when storage is unavailable. */ }
+      }
+
+      function currentLesson() { return LESSONS[Math.min(state.lessonIndex, LESSONS.length - 1)]; }
+      function currentTask() { return currentLesson().tasks[Math.min(state.taskIndex, currentLesson().tasks.length - 1)]; }
+      function currentTaskNumber() {
+        let total = 0;
+        for (let i = 0; i < state.lessonIndex; i += 1) total += LESSONS[i].tasks.length;
+        return total + state.taskIndex + 1;
+      }
+
+      function escapeHtml(text) {
+        return String(text).replace(/[&<>"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[char]);
+      }
+
+      function formatTask(text) {
+        const commandTerms = /(\.\.\/guide\.txt|complete\.txt|notes\.txt|guide\.txt|projects|practice|workshop|learner|dojo|\.\.)/g;
+        return escapeHtml(text).replace(commandTerms, "<code>$1</code>");
+      }
+
+      function shortPath(path) {
+        if (path === HOME) return "~";
+        if (path.startsWith(`${HOME}/`)) return `~/${path.slice(HOME.length + 1)}`;
+        return path;
+      }
+
+      function render() {
+        const lesson = currentLesson();
+        const task = currentTask();
+        const number = String(state.lessonIndex + 1).padStart(2, "0");
+        const lessonLabel = `Lesson ${number} / 05`;
+
+        $("#lessonNumber").textContent = lessonLabel;
+        $("#lessonTitle").textContent = lesson.title;
+        $("#lessonObjective").textContent = lesson.objective;
+        $("#challengeNumber").textContent = `${state.taskIndex + 1} / ${lesson.tasks.length}`;
+        $("#taskText").innerHTML = formatTask(task.text);
+        $("#conceptText").textContent = lesson.concept;
+        renderList($("#glossaryList"), lesson.glossary);
+
+        $("#mobileLessonNumber").textContent = lessonLabel;
+        $("#mobileLessonTitle").textContent = lesson.title;
+        $("#mobileTaskText").textContent = task.text;
+        $("#sheetLessonNumber").textContent = lessonLabel;
+        $("#sheetLessonTitle").textContent = lesson.title;
+        $("#sheetChallengeNumber").textContent = `${state.taskIndex + 1} / ${lesson.tasks.length}`;
+        $("#sheetTaskText").innerHTML = formatTask(task.text);
+        $("#sheetConceptText").textContent = lesson.concept;
+        renderList($("#sheetGlossaryList"), lesson.glossary);
+
+        const done = state.completed.length;
+        $("#progressCount").textContent = done;
+        $("#progressBar").style.width = `${Math.min(100, done / TOTAL_CHALLENGES * 100)}%`;
+        $("#pathLabel").textContent = shortPath(state.cwd);
+        $("#promptLabel").textContent = `learner:${shortPath(state.cwd)}$`;
+
+        const next = $("#nextChallenge");
+        next.classList.toggle("show", state.solvedCurrent && !state.finished);
+        next.textContent = currentTaskNumber() === TOTAL_CHALLENGES ? "コースを完了する" : "次のチャレンジへ";
+        $("#completion").classList.toggle("show", state.finished);
+        $("#resetChallenge").hidden = state.finished;
+        $("#taskStatus").classList.toggle("show", state.finished || state.solvedCurrent);
+        if (state.finished) setStatus("success", "全10チャレンジ完了", "ここまでの操作は、このブラウザ内だけで安全に実行されました。");
+        else if (state.solvedCurrent) setStatus("success", "できました", "結果を確認して、次のチャレンジへ進みましょう。");
+
+        renderHints();
+        renderLessons();
+        renderHistory();
+      }
+
+      function renderList(element, items) {
+        element.innerHTML = items.map(item => `<li>${escapeHtml(item)}</li>`).join("");
+      }
+
+      function renderHints() {
+        const task = currentTask();
+        const level = hintLevels[task.id] || 0;
+        const markup = task.hints.slice(0, level).map((hint, index) => `<li class="hint-item"><strong>Hint ${index + 1}</strong><br>${escapeHtml(hint)}</li>`).join("");
+        $("#hintList").innerHTML = markup;
+        $("#sheetHintList").innerHTML = markup;
+        $$('[data-action="reveal-hint"]').forEach(button => {
+          button.disabled = level >= task.hints.length;
+          button.textContent = level >= task.hints.length ? "ヒントはすべて表示中" : "ヒントを1つ見る";
+        });
+        $$('[data-action="seed-command"]').forEach(button => {
+          button.classList.toggle("show", level >= 3);
+          button.textContent = `${task.seed} を入力欄にセット`;
+        });
+      }
+
+      function renderLessons() {
+        $("#lessonList").innerHTML = LESSONS.map((lesson, index) => {
+          const start = LESSONS.slice(0, index).reduce((sum, item) => sum + item.tasks.length, 0);
+          const completedInLesson = lesson.tasks.filter((_, taskIndex) => state.completed.includes(lesson.tasks[taskIndex].id)).length;
+          const current = index === state.lessonIndex && !state.finished;
+          const status = completedInLesson === lesson.tasks.length ? "完了" : current ? "現在" : "未完了";
+          return `<li><span class="lesson-number">${String(index + 1).padStart(2, "0")}</span><span><strong>${escapeHtml(lesson.title)}</strong><small>${completedInLesson} / ${lesson.tasks.length} challenges</small></span><span class="lesson-state ${current ? "current" : ""}">${status}</span></li>`;
+        }).join("");
+      }
+
+      function setStatus(type, title, copy) {
+        const status = $("#taskStatus");
+        status.className = `status show ${type}`;
+        status.innerHTML = `<strong>${escapeHtml(title)}</strong>${escapeHtml(copy)}`;
+      }
+
+      function renderHistory() {
+        $("#history").innerHTML = history.map(item => {
+          const outputClass = item.ok ? "" : " error";
+          const explanation = item.explanation ? `<div class="explanation"><strong>起きたこと：</strong> ${escapeHtml(item.explanation.what)}<br><strong>確認：</strong> ${escapeHtml(item.explanation.check)}<br><strong>次に試す：</strong> ${escapeHtml(item.explanation.next)}</div>` : "";
+          return `<article class="run-record">
+            <div class="command-line"><span class="prompt-token">learner:${escapeHtml(shortPath(item.cwd))}$</span> ${escapeHtml(item.raw)}</div>
+            <pre class="command-output${outputClass}${item.output ? "" : " muted"}">${escapeHtml(item.output || "（表示なし）")}</pre>
+            <div class="trace" aria-label="コマンドの処理内容">
+              <div class="trace-cell"><span class="trace-label">command</span><span class="trace-value">${escapeHtml(item.command || "—")}</span></div>
+              <div class="trace-cell"><span class="trace-label">argument</span><span class="trace-value">${escapeHtml(item.argument || "—")}</span></div>
+              <div class="trace-cell"><span class="trace-label">resolved path</span><span class="trace-value" title="${escapeHtml(item.resolved || "—")}">${escapeHtml(item.resolved || "—")}</span></div>
+              <div class="trace-cell"><span class="trace-label">result</span><span class="trace-value ${item.ok ? "ok" : "ng"}">${item.ok ? "success" : "error"}</span></div>
+            </div>${explanation}
+          </article>`;
+        }).join("");
+      }
+
+      function tokenize(input) {
+        const tokens = [];
+        let current = "";
+        let quote = null;
+        let escaping = false;
+        for (const char of input.trim()) {
+          if (escaping) { current += char; escaping = false; continue; }
+          if (char === "\\" && quote !== "'") { escaping = true; continue; }
+          if (quote) {
+            if (char === quote) quote = null;
+            else current += char;
+          } else if (char === '"' || char === "'") quote = char;
+          else if (/\s/.test(char)) { if (current) { tokens.push(current); current = ""; } }
+          else current += char;
+        }
+        if (escaping) current += "\\";
+        if (quote) throw new Error("quote");
+        if (current) tokens.push(current);
+        return tokens;
+      }
+
+      function normalizePath(input, base = state.cwd) {
+        const source = !input || input === "~" ? HOME : input.startsWith("~/") ? `${HOME}/${input.slice(2)}` : input;
+        const parts = (source.startsWith("/") ? source : `${base}/${source}`).split("/");
+        const stack = [];
+        for (const part of parts) {
+          if (!part || part === ".") continue;
+          if (part === "..") stack.pop();
+          else stack.push(part);
+        }
+        return `/${stack.join("/")}`;
+      }
+
+      function getNode(path) {
+        if (path === "/") return state.fs;
+        let node = state.fs;
+        for (const part of path.split("/").filter(Boolean)) {
+          if (!node || node.type !== "dir" || !Object.prototype.hasOwnProperty.call(node.children, part)) return null;
+          node = node.children[part];
+        }
+        return node;
+      }
+
+      function pathParts(input) {
+        const path = normalizePath(input);
+        const pieces = path.split("/").filter(Boolean);
+        const name = pieces.pop();
+        return { path, parentPath: `/${pieces.join("/")}` || "/", name };
+      }
+
+      function errorResult(command, argument, resolved, message, what, check, next) {
+        return { ok: false, command, argument, resolved, output: message, explanation: { what, check, next } };
+      }
+
+      function requireArgs(command, args, count) {
+        if (args.length === count) return null;
+        return errorResult(command, args.join(" "), state.cwd, `${command}: 引数の数が正しくありません`, "コマンドに渡した情報の数が合いません。", `使い方は help で確認できます。${command} には ${count} 個の引数が必要です。`, "余分な語を消すか、必要な名前を追加してください。");
+      }
+
+      function execute(raw) {
+        let tokens;
+        try { tokens = tokenize(raw); }
+        catch (_) { return errorResult("—", "—", state.cwd, "入力エラー: 引用符が閉じていません", "' または \" で始めたまとまりが閉じていません。", "入力の左右に同じ引用符があるか見てください。", "引用符を閉じてから、もう一度実行してください。"); }
+        if (!tokens.length) return null;
+        const [command, ...args] = tokens;
+        const argument = args.join(" ");
+        const oneArgCommands = ["mkdir", "touch", "cat"];
+        if (oneArgCommands.includes(command)) {
+          const wrong = requireArgs(command, args, 1);
+          if (wrong) return wrong;
+        }
+        if (["pwd", "help", "clear"].includes(command)) {
+          const wrong = requireArgs(command, args, 0);
+          if (wrong) return wrong;
+        }
+
+        if (command === "help") return { ok: true, command, argument, resolved: state.cwd, output: "使えるコマンド\n  pwd           現在地を表示\n  ls [場所]     中身を一覧表示\n  cd [場所]     場所を移動\n  mkdir 名前    フォルダを作成\n  touch 名前    空のファイルを作成\n  cat ファイル  中身を表示\n  clear         画面をクリア" };
+        if (command === "clear") return { ok: true, cleared: true, command, argument, resolved: state.cwd, output: "" };
+        if (command === "pwd") return { ok: true, command, argument, resolved: state.cwd, output: state.cwd };
+
+        if (command === "ls") {
+          if (args.length > 1) return requireArgs(command, args, 1);
+          const target = normalizePath(args[0] || ".");
+          const node = getNode(target);
+          if (!node) return errorResult(command, argument, target, `ls: ${args[0] || "."}: そのような場所はありません`, "指定したパスをこの練習環境で見つけられませんでした。", "名前のつづりと現在地を pwd / ls で確認してください。", "見えている名前を使って、もう一度 ls を実行してください。");
+          if (node.type !== "dir") return { ok: true, command, argument, resolved: target, output: target.split("/").pop() };
+          const entries = Object.entries(node.children).sort(([a], [b]) => a.localeCompare(b)).map(([name, child]) => child.type === "dir" ? `${name}/` : name);
+          return { ok: true, command, argument, resolved: target, output: entries.join("\n") || "（空のフォルダ）" };
+        }
+
+        if (command === "cd") {
+          if (args.length > 1) return requireArgs(command, args, 1);
+          const target = normalizePath(args[0] || "~");
+          const node = getNode(target);
+          if (!node) return errorResult(command, argument, target, `cd: ${args[0] || "~"}: そのような場所はありません`, "移動先のパスが見つかりませんでした。", "ls で、今いる場所から見えるフォルダ名を確認してください。", "表示されたフォルダ名を cd の後ろに指定してください。");
+          if (node.type !== "dir") return errorResult(command, argument, target, `cd: ${args[0]}: フォルダではありません`, "ファイルは作業場所として開けません。", "末尾が .txt のものはファイルです。", "ls でフォルダを選び直してください。");
+          state.cwd = target;
+          return { ok: true, command, argument, resolved: target, output: "" };
+        }
+
+        if (command === "mkdir") {
+          const target = pathParts(args[0]);
+          const parent = getNode(target.parentPath);
+          if (!parent || parent.type !== "dir") return errorResult(command, argument, target.path, `mkdir: ${args[0]}: 親の場所がありません`, "作成先の1つ上のフォルダを見つけられませんでした。", "途中のフォルダ名と現在地を確認してください。", "既にある場所へ移動してから作成してください。");
+          if (parent.children[target.name]) return errorResult(command, argument, target.path, `mkdir: ${args[0]}: すでに存在します`, "同じ名前のファイルかフォルダがあります。", "ls で現在の中身を確認してください。", "別の名前にするか、既存のフォルダを使ってください。");
+          parent.children[target.name] = { type: "dir", children: {} };
+          return { ok: true, command, argument, resolved: target.path, output: "" };
+        }
+
+        if (command === "touch") {
+          const target = pathParts(args[0]);
+          const parent = getNode(target.parentPath);
+          if (!parent || parent.type !== "dir") return errorResult(command, argument, target.path, `touch: ${args[0]}: 作成先がありません`, "指定した作成先のフォルダが見つかりませんでした。", "pwd と ls で場所を確認してください。", "存在するフォルダへ移動してから作成してください。");
+          if (parent.children[target.name]?.type === "dir") return errorResult(command, argument, target.path, `touch: ${args[0]}: 同名のフォルダがあります`, "ファイルと同じ名前のフォルダが既にあります。", "ls で名前を確認してください。", "別のファイル名を使ってください。");
+          if (!parent.children[target.name]) parent.children[target.name] = { type: "file", content: "" };
+          return { ok: true, command, argument, resolved: target.path, output: "" };
+        }
+
+        if (command === "cat") {
+          const target = normalizePath(args[0]);
+          const node = getNode(target);
+          if (!node) return errorResult(command, argument, target, `cat: ${args[0]}: そのようなファイルはありません`, "読みたいファイルを見つけられませんでした。", "pwd と ls で、現在地とファイル名を確認してください。", "見えているファイル名か正しい相対パスを指定してください。");
+          if (node.type !== "file") return errorResult(command, argument, target, `cat: ${args[0]}: ファイルではありません`, "フォルダの中身は cat では表示できません。", "フォルダには ls、ファイルには cat を使います。", "ls で中のファイル名を確認してください。");
+          return { ok: true, command, argument, resolved: target, output: node.content || "（空のファイル）" };
+        }
+
+        return errorResult(command, argument, state.cwd, `${command}: コマンドが見つかりません`, "この練習環境にないコマンドか、つづりが違います。", "help で使えるコマンドを確認してください。", "一覧から目的に合うコマンドを選んでください。");
+      }
+
+      function satisfiesTask(task, result) {
+        if (!result?.ok) return false;
+        const node = path => getNode(path);
+        switch (task.id) {
+          case "pwd": return result.command === "pwd" && result.output === HOME;
+          case "help": return result.command === "help";
+          case "ls-home": return result.command === "ls" && result.resolved === HOME;
+          case "ls-projects": return result.command === "ls" && result.resolved === `${HOME}/projects`;
+          case "cd-projects": return result.command === "cd" && state.cwd === `${HOME}/projects`;
+          case "cd-parent": return result.command === "cd" && result.argument === ".." && state.cwd === HOME;
+          case "mkdir-practice": return result.command === "mkdir" && node(`${HOME}/practice`)?.type === "dir";
+          case "touch-notes": return result.command === "touch" && state.cwd === `${HOME}/practice` && node(`${HOME}/practice/notes.txt`)?.type === "file";
+          case "cat-guide": return result.command === "cat" && state.cwd === `${HOME}/workshop` && result.resolved === `${HOME}/workshop/guide.txt`;
+          case "final": return result.command === "cat" && result.argument === "../guide.txt" && state.cwd === `${HOME}/workshop/dojo` && node(`${HOME}/workshop/dojo/complete.txt`)?.type === "file" && result.resolved === `${HOME}/workshop/guide.txt`;
+          default: return false;
+        }
+      }
+
+      function runCommand(raw) {
+        const trimmed = raw.trim();
+        if (!trimmed) return;
+        const cwdBefore = state.cwd;
+        const result = execute(trimmed);
+        commandHistory.push(trimmed);
+        historyCursor = commandHistory.length;
+        if (!result) return;
+
+        if (result.cleared) history = [];
+        else history.push({ ...result, raw: trimmed, cwd: cwdBefore });
+
+        if (result.ok && satisfiesTask(currentTask(), result) && !state.solvedCurrent && !state.finished) {
+          state.solvedCurrent = true;
+          if (!state.completed.includes(currentTask().id)) state.completed.push(currentTask().id);
+          setStatus("success", "できました", "コマンドの結果と処理の流れを確認してみましょう。");
+        } else if (!result.ok) {
+          setStatus("error", "まだ大丈夫", "エラーは手がかりです。赤い説明を読んで、もう一度試せます。");
+        } else if (!state.solvedCurrent && result.command !== "clear") {
+          setStatus("", "コマンドは動きました", "課題の状態にはまだなっていません。結果を見て、次の一手を考えましょう。");
+        }
+        saveState();
+        render();
+        requestAnimationFrame(() => { $("#terminalScroll").scrollTop = $("#terminalScroll").scrollHeight; });
+      }
+
+      function advanceTask() {
+        if (!state.solvedCurrent || state.finished) return;
+        const lesson = currentLesson();
+        if (state.taskIndex < lesson.tasks.length - 1) state.taskIndex += 1;
+        else if (state.lessonIndex < LESSONS.length - 1) { state.lessonIndex += 1; state.taskIndex = 0; }
+        else state.finished = true;
+        state.solvedCurrent = false;
+        state.checkpoint = { cwd: state.cwd, fs: clone(state.fs) };
+        history = [];
+        saveState();
+        render();
+        $("#commandInput").focus();
+      }
+
+      function revealHint() {
+        const task = currentTask();
+        hintLevels[task.id] = Math.min(3, (hintLevels[task.id] || 0) + 1);
+        renderHints();
+      }
+
+      function seedCommand() {
+        $("#detailDialog").close();
+        $("#commandInput").value = currentTask().seed;
+        $("#commandInput").focus();
+      }
+
+      function openReset(kind = "challenge") {
+        pendingReset = kind;
+        $("#resetTitle").textContent = kind === "course" ? "最初からやり直しますか？" : "この課題をやり直しますか？";
+        $("#resetCopy").textContent = kind === "course" ? "進捗と、この練習環境で作ったフォルダ・ファイルをすべて初期状態に戻します。" : "この課題を始めた時点の場所とファイルに戻します。進捗済みの課題は消えません。";
+        $("#resetDialog").showModal();
+      }
+
+      function performReset() {
+        if (pendingReset === "course") {
+          state = defaultState();
+          hintLevels = {};
+          commandHistory = [];
+        } else {
+          state.cwd = state.checkpoint.cwd;
+          state.fs = clone(state.checkpoint.fs);
+          if (state.solvedCurrent) {
+            state.completed = state.completed.filter(id => id !== currentTask().id);
+            state.solvedCurrent = false;
+          }
+        }
+        history = [];
+        saveState();
+        $("#resetDialog").close();
+        render();
+        $("#commandInput").focus();
+      }
+
+      $("#terminalForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const input = $("#commandInput");
+        const raw = input.value;
+        input.value = "";
+        runCommand(raw);
+      });
+
+      $("#commandInput").addEventListener("keydown", event => {
+        if (event.key === "ArrowUp" && commandHistory.length) {
+          event.preventDefault();
+          historyCursor = Math.max(0, historyCursor - 1);
+          event.currentTarget.value = commandHistory[historyCursor];
+          requestAnimationFrame(() => event.currentTarget.setSelectionRange(event.currentTarget.value.length, event.currentTarget.value.length));
+        } else if (event.key === "ArrowDown" && commandHistory.length) {
+          event.preventDefault();
+          historyCursor = Math.min(commandHistory.length, historyCursor + 1);
+          event.currentTarget.value = commandHistory[historyCursor] || "";
+        } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "l") {
+          event.preventDefault();
+          history = [];
+          renderHistory();
+        }
+      });
+
+      $("#nextChallenge").addEventListener("click", advanceTask);
+      $("#resetChallenge").addEventListener("click", () => openReset("challenge"));
+      $("#sheetResetChallenge").addEventListener("click", () => { $("#detailDialog").close(); openReset("challenge"); });
+      $("#restartCourse").addEventListener("click", () => openReset("course"));
+      $("#confirmReset").addEventListener("click", performReset);
+      $("#openLessons").addEventListener("click", () => $("#lessonDialog").showModal());
+      $("#openDetails").addEventListener("click", () => $("#detailDialog").showModal());
+      $$('[data-close-dialog]').forEach(button => button.addEventListener("click", () => button.closest("dialog").close()));
+      $$('[data-action="reveal-hint"]').forEach(button => button.addEventListener("click", revealHint));
+      $$('[data-action="seed-command"]').forEach(button => button.addEventListener("click", seedCommand));
+      $$('dialog').forEach(dialog => dialog.addEventListener("click", event => {
+        if (event.target === dialog) dialog.close();
+      }));
+
+      render();
+      $("#commandInput").focus();
+    })();
+  </script>
+</body>
+</html>
