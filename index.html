@@ -867,7 +867,7 @@
         ["roadmap", "ロードマップ"], ["performance-log", "性能記録"], ["incident-note", "障害メモ"], ["handoff", "引き継ぎ"], ["archive-check", "アーカイブ確認"]
       ];
 
-      PROJECT_LABS.forEach(([folder, label], projectIndex) => {
+      if (false) PROJECT_LABS.forEach(([folder, label], projectIndex) => {
         const prefix = `lab-${String(projectIndex + 1).padStart(2, "0")}`;
         const add = (title, text, seed, concept, term) => {
           const id = `${prefix}-${String(LESSONS.length + 1).padStart(3, "0")}`;
@@ -883,6 +883,28 @@
         add("外から確認する", `${folder} の中身を表示してください。`, `ls ${folder}`, "中へ移動しなくても、相対パスで中身を確認できます。", "relative path — 現在地を基準にした指定");
         add("もう一度入る", `${folder} フォルダへ移動してください。`, `cd ${folder}`, "同じ場所へ戻る操作を繰り返すことで、パスの読み方が定着します。", "current directory — いま作業している場所");
         add("完了場所を確認する", "現在いる場所を表示してください。", "pwd", "作業を終える前に現在地を確認する習慣をつけます。", "pwd — 現在地を表示する");
+      });
+
+      const COMMAND_CATALOG = `pwd ls cd mkdir rmdir touch cp mv rm ln find locate which whereis file stat du df tree
+cat tac less more head tail nl wc sort uniq cut paste tr tee grep egrep fgrep sed awk xargs diff cmp comm
+chmod chown chgrp umask ps top pgrep pkill kill killall jobs bg fg nohup time nice renice
+history alias unalias env printenv export unset set type command builtin source read printf echo
+date cal sleep watch uptime hostname uname whoami id groups users who last w
+curl wget ping traceroute dig host nslookup ssh scp sftp rsync nc
+tar gzip gunzip zip unzip bzip2 xz base64 sha256sum md5sum
+git init clone config help status add diff commit log show restore reset rm mv branch switch checkout merge rebase cherry-pick revert stash tag fetch pull push remote submodule worktree blame bisect grep shortlog describe reflog clean gc fsck archive bundle notes replace range-diff format-patch am apply request-pull send-email instaweb daemon update-server-info ls-files ls-tree cat-file check-ignore check-attr check-mailmap check-ref-format commit-tree count-objects diff-files diff-index diff-tree for-each-ref hash-object interpret-trailers merge-base merge-file merge-index mktag pack-objects pack-refs prune-packed read-tree rev-list rev-parse show-index show-ref symbolic-ref unpack-file unpack-objects update-index update-ref verify-commit verify-pack write-tree`.split(/\s+/).slice(0, 200);
+
+      COMMAND_CATALOG.forEach((command, index) => {
+        const isGit = index >= COMMAND_CATALOG.indexOf("git");
+        const seed = isGit ? (command === "git" ? "git --help" : `git ${command}`) : command;
+        const id = `catalog-${String(index + 1).padStart(3, "0")}`;
+        LESSONS.push({
+          title: `${isGit ? "Git" : "CLI"}: ${seed}`,
+          objective: `${seed} の役割と、使う前に確認する対象を学びます。`,
+          concept: isGit ? `${seed} はGitの参照コマンドです。この教材では実リポジトリを変更せず、コマンドの役割を安全に確認します。` : `${seed} はUnix系CLIで使われるコマンドです。この教材では実OSへ接続せず、コマンドの役割を安全に確認します。`,
+          glossary: [isGit ? `git ${command} — Git操作のためのサブコマンド` : `${command} — Unix系CLIのコマンド`],
+          tasks: [{ id, text: `${seed} を実行してください。`, hints: ["レッスンタイトルと同じコマンドを入力します。", isGit ? "git の後ろにサブコマンドを書きます。" : "まずは引数なしで実行します。", `${seed} と入力して Enter を押します。`], seed, expected: seed, simulated: true }]
+        });
       });
 
       const clone = value => JSON.parse(JSON.stringify(value));
@@ -1190,7 +1212,11 @@
         const trimmed = raw.trim();
         if (!trimmed) return;
         const cwdBefore = state.cwd;
-        const result = execute(trimmed);
+        let result = execute(trimmed);
+        if (currentTask().simulated && currentTask().expected === trimmed) {
+          const command = trimmed.split(/\s+/)[0];
+          result = { ok: true, command, argument: trimmed.slice(command.length).trim(), resolved: state.cwd, output: "教材用の安全なシミュレーションです。実際のOS・リポジトリ・ネットワークは変更していません。" };
+        }
         commandHistory.push(trimmed);
         historyCursor = commandHistory.length;
         if (!result) return;
