@@ -274,33 +274,98 @@ Yesの場合、装飾を追加する前に、構成、情報階層、コンテ�
 
 - Product / users / primary task: コマンドライン未経験者向けの対話型学習Webアプリ。最優先タスクは、短い説明を読んだ直後にコマンドを自分で入力し、出力とファイルシステムの変化を理解すること。
 - Context of use / target devices: 自宅や学習環境で1回10〜15分。文字入力がしやすいDesktop / Laptopを主対象とし、Mobileでも全課題を完了できる。外付けキーボードを前提にしない。
-- Desired impression: 「黒い画面に挑む」より「安全な作業台で試す」。静かで精密だが冷たくなく、失敗しても状況を読み解ける実験ノートのようなUIにする。ハッカー風ネオン、ゲーム的な過剰演出、SaaSダッシュボード風の指標カードは使わない。
-- Information density / hierarchy: 標準密度。ターミナルを最大の視覚重量にし、現在の課題を次位、進捗・ヒント・補足を後退させる。画面上の常時表示情報を増やさず、実行後に必要な説明だけを開示する。
-- Reference products / source URLs:
-  - Linux Survival: https://linuxsurvival.com/linux-tutorial-introduction/
-  - Codecademy Learn the Command Line: https://www.codecademy.com/learn/learn-the-command-line
-  - Killercoda Interactive Environments: https://killercoda.com/about
-- Selected reference dimensions / what to borrow:
-  - Linux Survivalから、インストール不要の擬似ターミナルと、説明の直後に試せる低い開始障壁を参考にする。
-  - Codecademyから、課題と作業領域を隣接させ、入力結果をその場で判定する情報配置を参考にする。
-  - Killercodaから、シナリオ進行中も環境が継続し、前の操作が次の課題へつながる感覚を参考にする。
-- What not to copy / avoid: 各サービスの色・ロゴ・部品外観はコピーしない。Linux Survivalの古いページ送り、Codecademyの学習外ナビゲーションやマーケティング要素、Killercodaの専門家向け高密度操作と実VM基盤は採用しない。
-- Structural direction:
-  - 比較案A「学習作業台」を採用。Desktopは左34%に課題・観察ポイント・ヒント、右66%にターミナルを置く。両者の境界に、実行時だけ「入力 → shellの解釈 → 結果」を示す実行トレースを表示する。
-  - 比較案B「全画面ターミナル＋コーチドロワー」は没。没入感は高いが、初学者が目的と現在地を見失いやすく、説明と出力を往復する負担が大きい。
-  - Mobileは最上部に現在の課題を1〜2行で固定し、ターミナルを主領域にする。詳しい説明とヒントは下部シートで開き、ソフトウェアキーボード表示時も入力行と直近出力を残す。
-  - Desktop wireframe:
-    ```text
-    ┌ progress / lesson title ───────────────────────────┐
-    │ task & hint (34%) │ terminal / history (66%)       │
-    │ why / glossary    │ $ command                      │
-    │                   │ output                         │
-    ├───────────────────┴ input → interpretation → result┤
-    └────────────────────────────────────────────────────┘
-    ```
-- Typography / color / spacing / shape direction:
-  - Display / body: `IBM Plex Sans JP`。Code / prompt / utility: `IBM Plex Mono`。日本語の可読性を優先し、見出しの極端な巨大化はしない。
-  - Core palette: Workbench `#E9EEF2`、Paper `#F8FAFB`、Ink `#1D252C`、Terminal `#111820`、Action `#F15A3A`、Success `#2F8F72`。アクセントは実行・注意・成功にだけ使う。
-  - 4 / 8 / 12 / 20 / 32pxの間隔を基準にし、課題と補足の距離で関係を示す。角丸は4〜6px、境界は1px。階層に不要な影とグラデーションは使わない。
-- Motion / responsive direction: Enter後の実行トレースを約160msで段階表示し、原因と結果の順序を伝える。カーソル以外の常時アニメーションは置かず、`prefers-reduced-motion` では即時表示する。Mobileは単純縦積みではなく、課題要約・ターミナル・下部シートへ再編する。
-- Durable design decisions: 記憶に残す一点は「実行トレース」。装飾ではなく、初心者がshellの働きを理解するために使う。カードを大量に並べず、中心オブジェクトであるターミナルを常に最も強くする。エラーでも入力と環境を消さない。
+- Design concept: 「壊しても元に戻せるコマンド実験台」。黒い画面を格好よく見せるのではなく、入力した文字がどのように解釈され、何を変えたかを観察できる作業面として設計する。
+- Desired impression: 静かで精密だが冷たくなく、失敗しても状況を読み解ける実験ノートのようなUI。ハッカー風ネオン、ゲーム的な過剰演出、SaaSダッシュボード風の指標カードは使わない。
+- Information density / hierarchy: 標準密度。ターミナルを最大の視覚重量にし、現在の課題を次位、進捗・ヒント・補足を後退させる。常時表示情報を増やさず、実行後に必要な説明だけを入力結果の近くへ開示する。
+
+### Visual Reference Review
+
+今回の参考元は、学習内容ではなくUIの視覚・操作判断を得る目的で実画面を確認した。
+
+| Reference / source | UIで観察した点 | 採用するデザイン判断 | 採用しない点 |
+| --- | --- | --- | --- |
+| Warp Terminal — https://www.warp.dev/terminal | ほぼ黒い作業面、等幅文字、高密度な情報を細い境界で分割。差分や状態だけを赤・緑で強調し、通常情報は低彩度へ後退させている。 | ターミナル面の高コントラスト、細い区切り、等幅文字による階層、状態色を結果の意味に限定する考え方。 | 開発者向けの多ペイン、コードレビューやAI操作の密度、青いマーケティング面、背景の発光・グラデーション。 |
+| Codecademy Learn the Command Line / Hands-on learning — https://www.codecademy.com/learn/learn-the-command-line | 明るい説明面と暗い実行面を明確に分け、説明・編集・出力を固定ペイン化。進捗と主要操作を画面端に置き、内容が変わっても骨格を維持している。 | 教材と実行環境の表面差、安定した左右分割、進捗と次操作を探させない固定位置、現在課題の視覚的な強調。 | 3ペイン構成、常設の学習外ナビゲーション、紫・黄のブランド配色、AI補助パネル、課題を大量表示する高密度リスト。 |
+| Brilliant iPhone app screenshots — https://apps.apple.com/us/app/brilliant-learn-math-coding/id913335252 | 1画面で扱う概念を一つに絞り、操作対象を中央へ大きく配置。説明・ヒント・正解表示を対象の近くへ返し、成功状態は短い帯で明確に示している。 | Mobileでの1課題1焦点、入力対象の近くに返す文脈的フィードバック、詳細を一度に見せない段階開示、成功状態の明瞭さ。 | マスコット、XP、連続記録、淡いカードの積み重ね、pill型部品、子ども向けゲーム表現。 |
+
+- Reference priority:
+  - Terminal surface / typography / state color: Warp Terminal
+  - Desktop workspace composition / persistent hierarchy: Codecademy
+  - Mobile focus / contextual feedback / progressive disclosure: Brilliant
+- Reference boundary: 上記の学習順序、教材内容、機能セットは参照しない。機能とコンテンツは `FEATURES.md` と `CONTENT.md` で独立して決める。
+
+### Structural Direction
+
+- 比較案A「分割された学習作業台」を採用。Desktopは左36%に課題・観察ポイント・ヒント、右64%にターミナルを置く。教材面は明るく、実行面は暗くして、説明と操作の責務を表面そのもので区別する。
+- 比較案B「全画面ターミナル＋コーチドロワー」は見送り。没入感は高いが、初学者が目的と現在地を見失いやすく、説明と出力を往復する負担が大きい。
+- アプリを開いた直後から現在のレッスンを表示し、マーケティングHero、指標カード、機能紹介ページを入口に置かない。
+- ターミナル内では、実行した1コマンドとその出力を一つのrun recordとして扱う。run record同士はカード化せず、細い水平線と余白だけで区切る。
+- 正解・未達・エラーの説明はtoastへ逃がさず、対象run recordの直下へ固定する。履歴を読み返したときも原因と結果の対応が残る。
+- Desktop wireframe:
+
+  ```text
+  ┌ lesson / progress ───────────────────────────────────┐
+  │ lesson surface 36% │ terminal surface 64%            │
+  │ goal               │ $ command                       │
+  │ one concept        │ output                          │
+  │ observation        │ ──────────────────────────────  │
+  │ hint (on demand)   │ command anatomy / result trace  │
+  ├────────────────────┴─────────────────────────────────┤
+  │ reset                               next challenge → │
+  └──────────────────────────────────────────────────────┘
+  ```
+
+- Mobileは最上部にレッスン名と細い進捗線、その下に現在の課題を1〜2行だけ表示し、残りをターミナルへ渡す。詳しい解説とヒントは下部シートで開く。
+- Mobileでソフトウェアキーボードが表示されたときは、入力行、直近の出力、現在課題を残し、過去履歴と詳しい説明を一時的に後退させる。
+- 第3段階ヒントが開くまで、コマンドを自動挿入するchipや「実行」ショートカットは表示しない。自分で入力する学習行為を守る。
+
+### Signature Interaction
+
+- 記憶に残す一点は「command anatomy trace」。Enter後、run recordの下に入力を次の順で分解して示す。
+  - command: `cd`
+  - argument: `notes`
+  - resolved path: `/home/learner/notes`
+  - result: current directory changed
+- 初期レッスンでは全項目を表示し、理解が進むにつれて自動的に折りたたむ。必要なら履歴から再表示できる。
+- これは装飾や演出ではなく、文字列が環境変化へつながる見えない処理を可視化する教材UIである。
+- traceは入力、解釈、結果の順に合計約180msで現れる。reduced motionでは同時表示する。
+
+### Typography / Color / Spacing / Surface
+
+- Display / body: `IBM Plex Sans JP`。Code / prompt / utility: `IBM Plex Mono`。日本語の可読性を優先し、見出しの極端な巨大化はしない。
+- Type scale:
+  - Screen title: Desktop 24/32px、Mobile 20/28px
+  - Task / body: 15/24px
+  - Labels / progress: 12/16px
+  - Terminal: Desktop 14/22px、Mobile 15/24px
+- Core palette:
+  - Workbench `#DDE4E8`
+  - Lesson sheet `#F7F9FA`
+  - Ink `#172027`
+  - Terminal `#0F151B`
+  - Signal `#E4572E`
+  - Success `#2C8A68`
+- ターミナル本文はLesson sheetの低彩度版を使う。Signalは現在の入力・ヒント・注意、Successは正解と完了だけに使う。エラーは赤だけに依存せず、記号・文言・左境界を併用する。
+- Spacing scale: 4 / 8 / 12 / 16 / 24 / 32px。課題と観察ポイントは近づけ、補足と履歴は離して関係を示す。
+- Radius: 主要外枠6px、操作部品4px、ターミナル内部0px。境界は1px。階層に不要な影とグラデーションは使わない。
+- macOS風の赤黄緑ボタン、偽ウィンドウ枠、装飾目的のshell prompt記号は置かない。
+- アイコンはリセット、展開、状態など文章より認識が速い箇所だけに使う。ラベルと同義の装飾アイコンは置かない。
+
+### States / Motion / Responsive Behavior
+
+- Input waiting: promptと入力行だけをSignalで強調し、過去出力は低コントラストへ後退させる。
+- Running: 120ms以上待つ実処理はないためspinnerを出さない。Enter直後だけ入力を固定し、trace表示へつなぐ。
+- Correct: run record左端の3px線と短い結果文をSuccessで表示し、次の課題操作を同じ視線上へ出す。
+- Not yet: 誤りと断定せず、「コマンドは動いたが課題の状態にはまだなっていない」と対象状態を示す。
+- Error: shellに近い短いエラーを出力し、その直下に日本語で「起きたこと / 確認する場所 / 次の一手」を表示する。入力と擬似環境を消さない。
+- Hint: 課題面で段階的に開き、ターミナルの履歴を覆わない。Mobileのみ下部シートを使う。
+- Motionはtraceと課題切替に限定する。hoverで面を浮かせず、`transition-all` を使わない。
+- Keyboard focusはSignal色と2px outlineで明示する。hoverだけに説明や操作を依存させない。
+
+### Durable Design Decisions
+
+- 参考元は必ずUIデザインの具体的な観察から選び、各参照元の役割、採用点、採用しない点を記録する。
+- 中心オブジェクトは常にターミナル。教材、進捗、ヒントはターミナル操作を支える強さに抑える。
+- 初心者の失敗を消去・遮断せず、履歴上で原因と結果を読み返せるようにする。
+- カードの反復、巨大見出し、グラデーション、発光、マスコット、XP、不要なbadgeで学習体験を装飾しない。
+- MobileはDesktopの縦積みではなく、現在課題、ターミナル、文脈的フィードバックの順に再構成する。
