@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="ゼロからコマンドラインを学べる、安全なブラウザ内トレーニングアプリ。">
-  <meta name="theme-color" content="#0f151b">
+  <meta name="theme-color" content="#18232d">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="ja_JP">
   <meta property="og:title" content="Terminal Dojo — はじめてのコマンドライン">
@@ -19,21 +19,22 @@
   <style>
     :root {
       color-scheme: light;
-      --workbench: #dde4e8;
-      --lesson: #f7f9fa;
-      --paper: #ffffff;
-      --ink: #172027;
-      --muted: #5f6d76;
-      --line: #c5d0d6;
-      --terminal: #0f151b;
-      --terminal-2: #151e26;
-      --terminal-line: #293640;
-      --terminal-text: #e7eef1;
-      --terminal-muted: #9bacb5;
-      --signal: #e4572e;
-      --signal-soft: #fff0ea;
-      --success: #2c8a68;
-      --success-soft: #e8f5ef;
+      --workbench: #c7d2d9;
+      --lesson: #eef2f3;
+      --paper: #f9fbfb;
+      --ink: #18232d;
+      --muted: #586975;
+      --line: #b9c7ce;
+      --terminal: #18232d;
+      --terminal-2: #202d38;
+      --terminal-line: #3a4b57;
+      --terminal-text: #f0f4f3;
+      --terminal-muted: #aabac0;
+      --signal: #b94432;
+      --signal-soft: #f9e9e3;
+      --success: #18785f;
+      --success-soft: #e1f0e9;
+      --blue: #285d85;
       --danger: #d56262;
       --focus: #1e70aa;
       --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
@@ -58,7 +59,7 @@
     button {
       min-height: 44px;
       border: 1px solid currentColor;
-      border-radius: 2px;
+      border-radius: 0;
       background: transparent;
       color: inherit;
       cursor: pointer;
@@ -75,23 +76,24 @@
       display: grid;
       grid-template-rows: 68px minmax(0, 1fr);
       height: 100dvh;
-      border: 1px solid #aebbc2;
+      border: 1px solid #8196a1;
     }
 
     .topbar {
       display: grid;
-      grid-template-columns: 36% 1fr auto;
+      grid-template-columns: 31% 1fr auto;
       align-items: stretch;
-      background: var(--paper);
+      background: #e5ecee;
       border-bottom: 1px solid var(--line);
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 11px;
       padding: 0 24px;
-      border-right: 1px solid var(--line);
+      background: var(--ink);
+      color: #f7faf9;
       font-weight: 700;
       letter-spacing: -.02em;
     }
@@ -101,14 +103,14 @@
       width: 30px;
       height: 30px;
       place-items: center;
-      background: var(--ink);
-      color: #fff;
+      background: var(--signal);
+      color: #fffaf6;
       font: 600 12px/1 var(--mono);
     }
 
     .brand small {
       display: block;
-      color: var(--muted);
+      color: #b9c8cd;
       font-size: 10px;
       font-weight: 500;
       letter-spacing: .12em;
@@ -119,7 +121,7 @@
     .progress-wrap {
       display: flex;
       align-items: center;
-      gap: 18px;
+      gap: 20px;
       min-width: 0;
       padding: 0 24px;
     }
@@ -136,7 +138,7 @@
       width: min(360px, 46vw);
       height: 4px;
       overflow: hidden;
-      background: var(--workbench);
+      background: repeating-linear-gradient(90deg, #b8c6cc 0 calc(10% - 2px), transparent calc(10% - 2px) 10%);
     }
 
     .progress-bar {
@@ -157,7 +159,7 @@
 
     .workspace {
       display: grid;
-      grid-template-columns: 36% 64%;
+      grid-template-columns: 31% 69%;
       min-height: 0;
     }
 
@@ -168,11 +170,11 @@
       border-right: 1px solid var(--line);
     }
 
-    .lesson-inner { padding: clamp(26px, 4vh, 52px) clamp(24px, 3.2vw, 52px) 40px; }
+    .lesson-inner { padding: clamp(28px, 4.5vh, 58px) clamp(24px, 3vw, 48px) 40px; }
 
     .eyebrow {
       margin: 0 0 12px;
-      color: var(--signal);
+      color: var(--blue);
       font: 600 11px/1.4 var(--mono);
       letter-spacing: .08em;
       text-transform: uppercase;
@@ -183,9 +185,9 @@
     h1 {
       max-width: 12ch;
       margin-bottom: 18px;
-      font-size: clamp(27px, 3.1vw, 44px);
-      line-height: 1.18;
-      letter-spacing: -.055em;
+      font-size: clamp(28px, 3vw, 42px);
+      line-height: 1.24;
+      letter-spacing: -.045em;
     }
 
     .objective {
@@ -196,9 +198,10 @@
     }
 
     .task-block {
-      padding: 20px 0 22px;
-      border-top: 2px solid var(--ink);
+      padding: 20px 0 22px 16px;
+      border-top: 3px solid var(--ink);
       border-bottom: 1px solid var(--line);
+      border-left: 3px solid var(--signal);
     }
 
     .task-label {
@@ -223,7 +226,7 @@
 
     code {
       padding: .08em .35em;
-      background: #e8edf0;
+      background: #dbe5e9;
       color: var(--ink);
       font-size: .9em;
     }
@@ -239,7 +242,7 @@
       display: none;
       margin: 18px 0 0;
       padding: 13px 15px;
-      border-left: 4px solid var(--line);
+      border-left: 3px solid var(--line);
       background: var(--paper);
       font-size: 13px;
     }
@@ -259,8 +262,8 @@
     .primary-action {
       display: none;
       padding: 0 18px;
-      border-color: var(--ink);
-      background: var(--ink);
+      border-color: var(--blue);
+      background: var(--blue);
       color: #fff;
       font-weight: 700;
     }
@@ -305,7 +308,7 @@
 
     .hint-item {
       padding: 10px 12px;
-      border-left: 2px solid var(--signal);
+      border-left: 3px solid var(--signal);
       background: var(--signal-soft);
       color: var(--ink) !important;
     }
@@ -360,26 +363,28 @@
       width: 7px;
       height: 7px;
       margin-right: 10px;
-      background: var(--success);
+      background: #79c8a8;
       vertical-align: 1px;
     }
 
-    .sandbox-label { color: #cfdae0; }
+    .sandbox-label { color: #d1dde0; }
 
     .terminal-scroll {
       min-height: 0;
       overflow-y: auto;
-      padding: 22px clamp(18px, 3vw, 42px) 34px;
+      padding: 28px clamp(22px, 3.5vw, 54px) 38px;
       scroll-behavior: smooth;
     }
 
     .terminal-intro {
-      padding-bottom: 18px;
+      max-width: 66ch;
+      padding: 0 0 24px 16px;
+      border-left: 2px solid #79c8a8;
       color: var(--terminal-muted);
       font: 13px/1.75 var(--mono);
     }
 
-    .terminal-intro strong { color: var(--terminal-text); font-weight: 500; }
+    .terminal-intro strong { color: var(--terminal-text); font-weight: 600; }
 
     .run-record {
       padding: 18px 0;
@@ -388,7 +393,7 @@
     }
 
     .command-line { color: var(--terminal-text); overflow-wrap: anywhere; }
-    .prompt-token { color: #70cba8; }
+    .prompt-token { color: #79c8a8; }
     .command-output { margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
     .command-output.error { color: #f08d8d; }
     .command-output.muted { color: var(--terminal-muted); }
@@ -427,7 +432,7 @@
       white-space: nowrap;
     }
 
-    .trace-value.ok { color: #70cba8; }
+    .trace-value.ok { color: #79c8a8; }
     .trace-value.ng { color: #f08d8d; }
 
     .trace-details { margin-top: 12px; }
@@ -468,12 +473,12 @@
       align-items: center;
       gap: 12px;
       min-height: 74px;
-      padding: 12px clamp(18px, 3vw, 42px);
+      padding: 12px clamp(22px, 3.5vw, 54px);
       border-top: 1px solid var(--terminal-line);
       background: var(--terminal-2);
     }
 
-    .input-prompt { color: #70cba8; font: 500 13px/1 var(--mono); }
+    .input-prompt { color: #79c8a8; font: 500 13px/1 var(--mono); }
 
     .command-input {
       width: 100%;
@@ -484,7 +489,7 @@
       outline: 0;
       background: transparent;
       color: #fff;
-      caret-color: var(--signal);
+      caret-color: #f0a08e;
       font: 15px/1.4 var(--mono);
     }
 
@@ -618,7 +623,7 @@
         <div class="progress-copy"><span id="progressCount">0</span> / 10<span class="progress-word"> challenges</span></div>
         <div class="progress-track" id="progressTrack" role="progressbar" aria-label="完了したチャレンジ" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><div class="progress-bar" id="progressBar"></div></div>
       </div>
-      <button class="top-action" id="openLessons" type="button">進捗を見る</button>
+      <button class="top-action" id="openLessons" type="button">進捗を確認</button>
     </header>
 
     <main class="workspace">
