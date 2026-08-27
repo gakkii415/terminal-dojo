@@ -539,6 +539,7 @@
       .mobile-detail-button { display: block; padding: 0 12px; border-color: var(--line); font-size: 12px; font-weight: 600; }
       .action-row { margin-top: 12px; }
       .secondary-action { display: none; }
+      .dialog-actions .secondary-action { display: block; }
       .primary-action { width: 100%; }
       .completion { padding: 12px 0 0; }
       .completion h2 { font-size: 19px; }
@@ -601,7 +602,7 @@
 
           <div class="action-row">
             <button class="primary-action" id="nextChallenge" type="button">次のチャレンジへ</button>
-            <button class="secondary-action" id="resetChallenge" type="button">この課題をやり直す</button>
+            <button class="secondary-action" id="resetChallenge" type="button">このレッスンを最初から</button>
           </div>
 
           <div class="completion" id="completion">
@@ -649,7 +650,7 @@
 
   <dialog id="lessonDialog">
     <div class="dialog-head"><h2>5つのレッスン</h2><button class="close-button" data-close-dialog type="button" aria-label="閉じる">×</button></div>
-    <div class="dialog-body"><ol class="lesson-list" id="lessonList"></ol></div>
+    <div class="dialog-body"><ol class="lesson-list" id="lessonList"></ol><div class="dialog-actions"><button class="secondary-action" id="resetCourseFromMenu" type="button">進捗をすべてリセット</button></div></div>
   </dialog>
 
   <dialog id="detailDialog">
@@ -661,13 +662,13 @@
       <section class="detail-section"><h2>この操作で起きること</h2><p id="sheetConceptText"></p></section>
       <section class="detail-section"><h2>ヒント</h2><ul class="hint-list" id="sheetHintList"></ul><button class="hint-action" data-action="reveal-hint" type="button">ヒントを1つ見る</button><button class="seed-action" data-action="seed-command" type="button">入力欄にセット</button></section>
       <section class="detail-section"><h2>ことば</h2><ul id="sheetGlossaryList"></ul></section>
-      <button class="secondary-action" id="sheetResetChallenge" type="button">この課題をやり直す</button>
+      <button class="secondary-action" id="sheetResetChallenge" type="button">このレッスンを最初から</button>
     </div>
   </dialog>
 
   <dialog id="resetDialog">
-    <div class="dialog-head"><h2 id="resetTitle">この課題をやり直しますか？</h2><button class="close-button" data-close-dialog type="button" aria-label="閉じる">×</button></div>
-    <div class="dialog-body"><p id="resetCopy">この課題を始めた時点の場所とファイルに戻します。</p><div class="dialog-actions"><button data-close-dialog type="button">キャンセル</button><button class="danger-action" id="confirmReset" type="button">やり直す</button></div></div>
+    <div class="dialog-head"><h2 id="resetTitle">このレッスンをやり直しますか？</h2><button class="close-button" data-close-dialog type="button" aria-label="閉じる">×</button></div>
+    <div class="dialog-body"><p id="resetCopy">このレッスンを始めた時点の場所とファイルに戻します。</p><div class="dialog-actions"><button data-close-dialog type="button">キャンセル</button><button class="danger-action" id="confirmReset" type="button">やり直す</button></div></div>
   </dialog>
 
   <script>
@@ -759,7 +760,7 @@
       let commandHistory = [];
       let historyCursor = 0;
       let hintLevels = {};
-      let pendingReset = "challenge";
+      let pendingReset = "lesson";
 
       const $ = selector => document.querySelector(selector);
       const $$ = selector => [...document.querySelectorAll(selector)];
@@ -1074,11 +1075,12 @@
       function advanceTask() {
         if (!state.solvedCurrent || state.finished) return;
         const lesson = currentLesson();
+        let enteredNewLesson = false;
         if (state.taskIndex < lesson.tasks.length - 1) state.taskIndex += 1;
-        else if (state.lessonIndex < LESSONS.length - 1) { state.lessonIndex += 1; state.taskIndex = 0; }
+        else if (state.lessonIndex < LESSONS.length - 1) { state.lessonIndex += 1; state.taskIndex = 0; enteredNewLesson = true; }
         else state.finished = true;
         state.solvedCurrent = false;
-        state.checkpoint = { cwd: state.cwd, fs: clone(state.fs) };
+        if (enteredNewLesson) state.checkpoint = { cwd: state.cwd, fs: clone(state.fs) };
         history = [];
         saveState();
         render();
@@ -1097,10 +1099,10 @@
         $("#commandInput").focus();
       }
 
-      function openReset(kind = "challenge") {
+      function openReset(kind = "lesson") {
         pendingReset = kind;
-        $("#resetTitle").textContent = kind === "course" ? "最初からやり直しますか？" : "この課題をやり直しますか？";
-        $("#resetCopy").textContent = kind === "course" ? "進捗と、この練習環境で作ったフォルダ・ファイルをすべて初期状態に戻します。" : "この課題を始めた時点の場所とファイルに戻します。進捗済みの課題は消えません。";
+        $("#resetTitle").textContent = kind === "course" ? "最初からやり直しますか？" : "このレッスンをやり直しますか？";
+        $("#resetCopy").textContent = kind === "course" ? "進捗と、この練習環境で作ったフォルダ・ファイルをすべて初期状態に戻します。" : "このレッスンを始めた時点の場所とファイルに戻し、レッスン内の進捗を解除します。";
         $("#resetDialog").showModal();
       }
 
@@ -1112,10 +1114,11 @@
         } else {
           state.cwd = state.checkpoint.cwd;
           state.fs = clone(state.checkpoint.fs);
-          if (state.solvedCurrent) {
-            state.completed = state.completed.filter(id => id !== currentTask().id);
-            state.solvedCurrent = false;
-          }
+          const lessonTaskIds = currentLesson().tasks.map(task => task.id);
+          state.completed = state.completed.filter(id => !lessonTaskIds.includes(id));
+          state.taskIndex = 0;
+          state.solvedCurrent = false;
+          state.finished = false;
         }
         history = [];
         saveState();
@@ -1150,9 +1153,10 @@
       });
 
       $("#nextChallenge").addEventListener("click", advanceTask);
-      $("#resetChallenge").addEventListener("click", () => openReset("challenge"));
-      $("#sheetResetChallenge").addEventListener("click", () => { $("#detailDialog").close(); openReset("challenge"); });
+      $("#resetChallenge").addEventListener("click", () => openReset("lesson"));
+      $("#sheetResetChallenge").addEventListener("click", () => { $("#detailDialog").close(); openReset("lesson"); });
       $("#restartCourse").addEventListener("click", () => openReset("course"));
+      $("#resetCourseFromMenu").addEventListener("click", () => { $("#lessonDialog").close(); openReset("course"); });
       $("#confirmReset").addEventListener("click", performReset);
       $("#openLessons").addEventListener("click", () => $("#lessonDialog").showModal());
       $("#openDetails").addEventListener("click", () => $("#detailDialog").showModal());
