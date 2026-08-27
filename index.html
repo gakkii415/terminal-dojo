@@ -629,7 +629,7 @@
     <main class="workspace">
       <aside class="lesson-panel" aria-label="レッスン">
         <div class="lesson-inner">
-          <p class="eyebrow" id="lessonNumber">Lesson 01 / 05</p>
+          <p class="eyebrow" id="lessonNumber">Lesson 01 / 55</p>
           <h1 id="lessonTitle">いまいる場所を知る</h1>
           <p class="objective" id="lessonObjective"></p>
 
@@ -730,7 +730,7 @@
 
       const STORAGE_KEY = "terminal-dojo:v2";
       const HOME = "/home/learner";
-      const TOTAL_CHALLENGES = 10;
+      const TOTAL_CHALLENGES = 60;
 
       const createInitialFs = () => ({
         type: "dir", children: {
@@ -802,6 +802,64 @@
         }
       ];
 
+      const EXTENDED_DRILLS = [
+        ["見取り図を開く", "ホームの中身を、移動せずに確認してください。", "ls /home/learner", "一覧は、まず全体像をつかむための道具です。", "absolute path — / から始まる場所の指定"],
+        ["projects を見る", "projects フォルダの中身を表示してください。", "ls /home/learner/projects", "絶対パスなら、今いる場所に左右されません。", "ls — 場所の中身を一覧表示する"],
+        ["workshop を見る", "workshop フォルダの中身を表示してください。", "ls /home/learner/workshop", "作業前に中身を見ると、必要な名前を間違えにくくなります。", "directory — ファイルをまとめる場所"],
+        ["案内を読み直す", "workshop の guide.txt を表示してください。", "cat /home/learner/workshop/guide.txt", "cat は指定したファイルの中身を画面へ出します。", "cat — ファイル内容を表示する"],
+        ["welcome を読む", "ホームにある welcome.txt を表示してください。", "cat /home/learner/welcome.txt", "ファイル名には拡張子も含めて指定します。", "file — 内容を持つデータのまとまり"],
+        ["メモを読む", "projects の memo.txt を表示してください。", "cat /home/learner/projects/memo.txt", "深い場所のファイルも、絶対パスで直接読めます。", "path — ファイルやフォルダの住所"],
+        ["現在地を再確認", "現在いる場所を表示してください。", "pwd", "操作の合間に pwd を使うと、場所の取り違えを防げます。", "pwd — 現在地を表示する"],
+        ["現在地の一覧", "現在いる場所の中身を . を使って表示してください。", "ls .", ". は現在地そのものを表します。", ". — 現在いるディレクトリ"],
+        ["1つ上を指定する", "現在地の1つ上の中身を表示してください。", "ls ..", ".. は親フォルダを表します。移動せず、中身だけを見ることもできます。", ".. — 1つ上のディレクトリ"],
+        ["使える操作を確認", "help を実行して、使えるコマンドを確認してください。", "help", "迷ったときは、推測で進めず help で確かめます。", "help — 使えるコマンドを一覧表示する"],
+        ["ホームへ戻る", "ホームへ移動してください。", "cd /home/learner", "cd の後ろに絶対パスを置くと、どこからでも目的地へ移れます。", "cd — 作業場所を変更する"],
+        ["projects へ入る", "projects フォルダへ移動してください。", "cd projects", "現在地から見える名前だけを使う指定を相対パスと呼びます。", "relative path — 現在地を基準にした場所"],
+        ["親へ戻る", ".. を使ってホームへ戻ってください。", "cd ..", "親へ戻る操作は、深い場所から戻る基本です。", "parent directory — 1つ上の場所"],
+        ["workshop へ入る", "workshop フォルダへ移動してください。", "cd workshop", "移動後はプロンプトの場所表示も変わります。", "prompt — 入力を待つ場所の表示"],
+        ["dojo を見る", "workshop の中の dojo フォルダへ移動してください。", "cd dojo", "相対パスは、今いる場所との関係で決まります。", "current directory — いま作業している場所"],
+        ["作業場へ戻る", "絶対パスで practice フォルダへ移動してください。", "cd /home/learner/practice", "目的地が明確なときは、絶対パスで迷わず移動できます。", "absolute path — 先頭から場所を示す住所"],
+        ["ホームを指定する", "~ を使ってホームへ移動してください。", "cd ~", "~ は、この練習環境のホームを短く表す記号です。", "~ — ホームディレクトリの省略形"],
+        ["projects から戻る", "projects へ移動してください。", "cd projects", "同じ操作でも、実行前の現在地を意識します。", "cd — 場所を切り替えるコマンド"],
+        ["作業場を確認", "practice フォルダの中身を表示してください。", "ls /home/learner/practice", "作ったものは ls で確かめます。", "ls — 中身を一覧表示する"],
+        ["開始地点へ", "ホームへ移動してください。", "cd /home/learner", "次の作業の前に、開始地点をそろえます。", "home directory — ユーザーの基準となる場所"],
+        ["logs を作る", "ホームに logs フォルダを作ってください。", "mkdir logs", "mkdir は新しいフォルダを1つ作ります。", "mkdir — フォルダを作成する"],
+        ["logs に入る", "logs フォルダへ移動してください。", "cd logs", "作る場所に移動してから作業すると、パスを短く書けます。", "relative path — 現在地からの指定"],
+        ["最初の記録", "today.txt という空のファイルを作ってください。", "touch today.txt", "touch は空のファイルを用意します。", "touch — 空のファイルを作成する"],
+        ["親へ戻る", "ホームへ戻ってください。", "cd ..", "作業を区切るときは、どこに戻ったか確認します。", ".. — 1つ上の場所"],
+        ["assets を作る", "ホームに assets フォルダを作ってください。", "mkdir assets", "用途ごとにフォルダを分けると、後で探しやすくなります。", "directory — ファイルをまとめる場所"],
+        ["assets に入る", "assets フォルダへ移動してください。", "cd assets", "作成先を切り替えるには cd を使います。", "cd — 作業場所を変更する"],
+        ["画像メモを作る", "image-notes.txt を作ってください。", "touch image-notes.txt", "名前に記号を使うときも、入力した文字列がそのまま名前になります。", "filename — ファイルの名前"],
+        ["ホームへ戻る", "ホームへ移動してください。", "cd ..", "作業場所を戻してから、次のフォルダを作ります。", "parent directory — 1つ上の場所"],
+        ["drafts を作る", "drafts フォルダを作ってください。", "mkdir drafts", "mkdir の成功後は、同じ名前のフォルダが増えます。", "mkdir — ディレクトリを作成する"],
+        ["下書きの場所へ", "drafts フォルダへ移動してください。", "cd drafts", "作成前に目的のフォルダへ移動します。", "step — 複数操作を順番に行うこと"],
+        ["logs を確認", "絶対パスで logs の中身を表示してください。", "ls /home/learner/logs", "現在地と別の場所も、絶対パスならすぐ確認できます。", "absolute path — / から始まる指定"],
+        ["記録を読む", "logs の today.txt を表示してください。", "cat /home/learner/logs/today.txt", "空のファイルも cat で確認できます。", "empty file — 内容がまだないファイル"],
+        ["assets を確認", "assets の中身を表示してください。", "ls /home/learner/assets", "作成後の確認は、次の操作の土台になります。", "ls — 中身を見るコマンド"],
+        ["メモを読む", "assets の image-notes.txt を表示してください。", "cat /home/learner/assets/image-notes.txt", "パスを最後まで書くと、読みたい対象を一意に指定できます。", "path — 対象までの道筋"],
+        ["drafts を確認", "drafts の中身を表示してください。", "ls /home/learner/drafts", "フォルダの中に何があるかを見て、次の対象を選びます。", "listing — 一覧表示"],
+        ["下書きを読む", "drafts の idea.txt を表示してください。", "cat /home/learner/drafts/idea.txt", "読み取りはファイルを変えません。安全に内容を確認できます。", "read — 内容を表示して確認すること"],
+        ["ホームの変化を見る", "ホームの中身を表示してください。", "ls /home/learner", "新しく作ったフォルダが、ホームの一覧に現れます。", "result — コマンド実行後に起きたこと"],
+        ["現在地を読む", "現在いる場所を表示してください。", "pwd", "一覧だけでなく、現在地も一緒に確かめます。", "pwd — 作業場所を表示する"],
+        ["プロジェクトを見る", "projects の中身を表示してください。", "ls /home/learner/projects", "既存の場所と自分で作った場所を見比べます。", "directory — フォルダとほぼ同じ意味"],
+        ["garden を見る", "projects/garden の中身を表示してください。", "ls /home/learner/projects/garden", "フォルダの階層をたどると、整理の構造が見えてきます。", "nested directory — フォルダの中にあるフォルダ"],
+        ["案内へ戻る", "guide.txt を絶対パスで表示してください。", "cat /home/learner/workshop/guide.txt", "最初の案内をもう一度読んで、操作の意味を結び付けます。", "cat — ファイル内容を表示する"],
+        ["dojo の一覧", "workshop/dojo の中身を表示してください。", "ls /home/learner/workshop/dojo", "相対パスと絶対パスのどちらでも、同じ対象へたどり着けます。", "path — 場所を示す文字列"],
+        ["practice を見る", "practice の中身を表示してください。", "ls /home/learner/practice", "最初に作った練習用ファイルを確認します。", "verification — 操作の結果を確かめること"],
+        ["メモを読み直す", "practice の notes.txt を表示してください。", "cat /home/learner/practice/notes.txt", "作成と閲覧をつなげると、ファイル操作の流れが完成します。", "file — 内容を保存する単位"],
+        ["ホームへ整列", "ホームへ移動してください。", "cd /home/learner", "最後の小さな作業の開始地点をそろえます。", "cwd — current working directory の略"],
+        ["review を作る", "review フォルダを作ってください。", "mkdir review", "新しい作業を始めるときは、用途が分かる名前の場所を用意します。", "mkdir — フォルダを作成する"],
+        ["review に入る", "review フォルダへ移動してください。", "cd review", "作業先へ移動してからファイルを作ります。", "cd — 場所を移動する"],
+        ["振り返りを作る", "summary.txt を作ってください。", "touch summary.txt", "空のファイルを作る操作まで、手順として身につきました。", "touch — ファイルを作成する"],
+        ["最後の確認", "現在地を表示してください。", "pwd", "どこで作業を終えたかを確認する習慣をつけます。", "pwd — 現在地を表示する"],
+        ["まとめを読む", "review の summary.txt を表示してください。", "cat /home/learner/review/summary.txt", "作成したファイルを表示できれば、基本の往復は完了です。", "workflow — 操作をつないだ流れ"]
+      ];
+
+      EXTENDED_DRILLS.forEach(([title, text, seed, concept, term], index) => {
+        const id = `extended-${String(index + 1).padStart(2, "0")}`;
+        LESSONS.push({ title, objective: "短い操作を自分で入力し、結果を見て次の一手へつなげます。", concept, glossary: [term], tasks: [{ id, text, hints: ["課題文にある対象と、いまいる場所を確認します。", `使う入力は ${seed.split(" ")[0]} です。`, `${seed} と入力して Enter を押します。`], seed, expected: seed }] });
+      });
+
       const clone = value => JSON.parse(JSON.stringify(value));
       const defaultState = () => {
         const fs = createInitialFs();
@@ -859,7 +917,7 @@
         const lesson = currentLesson();
         const task = currentTask();
         const number = String(state.lessonIndex + 1).padStart(2, "0");
-        const lessonLabel = `Lesson ${number} / 05`;
+        const lessonLabel = `Lesson ${number} / ${String(LESSONS.length).padStart(2, "0")}`;
 
         $("#lessonNumber").textContent = lessonLabel;
         $("#lessonTitle").textContent = lesson.title;
@@ -892,7 +950,7 @@
         $("#completion").classList.toggle("show", state.finished);
         $("#resetChallenge").hidden = state.finished;
         $("#taskStatus").classList.toggle("show", state.finished || state.solvedCurrent);
-        if (state.finished) setStatus("success", "全10チャレンジ完了", "ここまでの操作は、このブラウザ内だけで安全に実行されました。");
+        if (state.finished) setStatus("success", `全${TOTAL_CHALLENGES}チャレンジ完了`, "ここまでの操作は、このブラウザ内だけで安全に実行されました。");
         else if (state.solvedCurrent) setStatus("success", "できました", "結果を確認して、次のチャレンジへ進みましょう。");
 
         renderHints();
@@ -1084,8 +1142,9 @@
         return errorResult(command, argument, state.cwd, `${command}: コマンドが見つかりません`, "この練習環境にないコマンドか、つづりが違います。", "help で使えるコマンドを確認してください。", "一覧から目的に合うコマンドを選んでください。");
       }
 
-      function satisfiesTask(task, result) {
+      function satisfiesTask(task, result, raw) {
         if (!result?.ok) return false;
+        if (task.expected) return raw === task.expected;
         const node = path => getNode(path);
         switch (task.id) {
           case "pwd": return result.command === "pwd" && result.output === HOME;
@@ -1114,7 +1173,7 @@
         if (result.cleared) history = [];
         else history.push({ ...result, raw: trimmed, cwd: cwdBefore, lessonIndex: state.lessonIndex });
 
-        if (result.ok && satisfiesTask(currentTask(), result) && !state.solvedCurrent && !state.finished) {
+        if (result.ok && satisfiesTask(currentTask(), result, trimmed) && !state.solvedCurrent && !state.finished) {
           state.solvedCurrent = true;
           if (!state.completed.includes(currentTask().id)) state.completed.push(currentTask().id);
           setStatus("success", "できました", "コマンドの結果と処理の流れを確認してみましょう。");
